@@ -20,11 +20,16 @@ make
 ```
 sudo cp ./deviceconsole /usr/local/bin
 ```
+**log on console**
+eg bundle id : `cc.onezen.YCLog`
+log all contain `YCLog` log
 
-
+```
+deviceconsole -i -f YCLog
+```
 ## Terminal
-![http://oss.onezen.cc/img/yclog.png
-](http://oss.onezen.cc/img/yclog.png
+![http://oss.onezen.cc/img/yclog.jpg
+](http://oss.onezen.cc/img/yclog.jpg
 )
 
 

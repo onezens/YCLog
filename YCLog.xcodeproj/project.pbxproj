@@ -12,7 +12,6 @@
 		35EC3BF9202C222F00AE00C2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 35EC3BF8202C222F00AE00C2 /* Assets.xcassets */; };
 		35EC3BFF202C222F00AE00C2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 35EC3BFE202C222F00AE00C2 /* main.m */; };
 		35EC3C07202C29F900AE00C2 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35EC3C06202C29F800AE00C2 /* CoreFoundation.framework */; };
-		35EC3C0A202C378200AE00C2 /* YCLog.c in Sources */ = {isa = PBXBuildFile; fileRef = 35EC3C09202C378200AE00C2 /* YCLog.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,7 +25,6 @@
 		35EC3BFE202C222F00AE00C2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		35EC3C06202C29F800AE00C2 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		35EC3C08202C322700AE00C2 /* YCLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YCLog.h; sourceTree = "<group>"; };
-		35EC3C09202C378200AE00C2 /* YCLog.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = YCLog.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,7 +60,6 @@
 			isa = PBXGroup;
 			children = (
 				35EC3C08202C322700AE00C2 /* YCLog.h */,
-				35EC3C09202C378200AE00C2 /* YCLog.c */,
 				35EC3BEF202C222F00AE00C2 /* AppDelegate.h */,
 				35EC3BF0202C222F00AE00C2 /* AppDelegate.m */,
 				35EC3BF2202C222F00AE00C2 /* ViewController.h */,
@@ -153,7 +150,6 @@
 			files = (
 				35EC3BF4202C222F00AE00C2 /* ViewController.m in Sources */,
 				35EC3BFF202C222F00AE00C2 /* main.m in Sources */,
-				35EC3C0A202C378200AE00C2 /* YCLog.c in Sources */,
 				35EC3BF1202C222F00AE00C2 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

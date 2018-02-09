@@ -34,9 +34,9 @@
 
 - (void)logTest {
     
-    YCLogInfo(@"HBLogInfo");
+    YCLogInfo(@"YCLogInfo");
     
-    YCLogError(@"HBLogError");
+    YCLogError(@"YCLogError");
     
     YCLogWarn(@"YCLogWarn");
     
@@ -46,7 +46,7 @@
     
     YCLogInfo(@"profile data: %@", dict);
     
-    YCLogError(@"HBLogError");
+    YCLogError(@"YCLogError");
     
     YCLogWarn(@"YCLogWarn");
 }

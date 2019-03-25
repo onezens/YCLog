@@ -43,10 +43,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface YCLogManager : NSObject
 
 + (void)logLevel:(YCLogLevel)level
-       flag:(YCLogFlag)flag
-   function:(const char *)function
-       line:(NSUInteger)line
-     format:(NSString *)format, ... NS_FORMAT_FUNCTION(5,6);
+            flag:(YCLogFlag)flag
+            file:(const char *)file
+            line:(NSUInteger)line
+          format:(NSString *)format, ... NS_FORMAT_FUNCTION(5,6);
 
 
 @end

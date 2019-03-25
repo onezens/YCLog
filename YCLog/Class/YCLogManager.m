@@ -49,7 +49,7 @@ void HandleException(NSException *exception)
     
     NSString *exceptionInfo = [NSString stringWithFormat:@"Exception reason：%@\nException name：%@\nException stack：%@",name, reason, stackArray];
     
-    [YCLogManager logLevel:YCLogLevelError flag:YCLogFlagError function:NULL line:0 format:@"%@",exceptionInfo];
+    [YCLogManager logLevel:YCLogLevelError flag:YCLogFlagError file:NULL line:0 format:@"%@",exceptionInfo];
 
 }
 
@@ -72,7 +72,7 @@ YCLogClient *_logClient;
     NSLog(@"%@", allLog);
 }
 
-+ (void)logLevel:(YCLogLevel)level flag:(YCLogFlag)flag function:(const char *)function line:(NSUInteger)line format:(NSString *)format, ... {
++ (void)logLevel:(YCLogLevel)level flag:(YCLogFlag)flag file:(const char *)file line:(NSUInteger)line format:(NSString *)format, ... {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         InstallUncaughtExceptionHandler();
@@ -101,10 +101,9 @@ YCLogClient *_logClient;
     }
     NSString *allLog = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
-    NSString *file = nil;
-    if (function != NULL) {
-        file = [NSString stringWithCString:function encoding:NSUTF8StringEncoding];
-        file = file.lastPathComponent;
+    NSString *fileName = nil;
+    if (file != NULL) {
+        fileName = [NSString stringWithCString:file encoding:NSUTF8StringEncoding].lastPathComponent;
     }
     NSDateFormatter *df = [[NSDateFormatter alloc] init];
     [df setDateFormat:@"MMM dd HH:mm:ss"];
@@ -112,7 +111,8 @@ YCLogClient *_logClient;
     NSString *deviceName = [UIDevice currentDevice].name;
     NSString *appName = [NSBundle mainBundle].infoDictionary[@"CFBundleName"];
     
-    NSString *log = [NSString stringWithFormat:@"%s%@ %@%s %@ %@ [%@:%lu] :%s %@ \n",COLOR_GRay,dateStr , deviceName, COLOR_CYAN, appName ,flagDesc, file, (unsigned long)line, COLOR_RESET, allLog];
+    NSString *log = [NSString stringWithFormat:@"%s%@ %@%s %@ %@ [%@:%lu] :%s %@ \n",COLOR_GRay,dateStr , deviceName, COLOR_CYAN, appName ,flagDesc, fileName, (unsigned long)line, COLOR_RESET, allLog];
+    
     [self logInfoToFile:log];
 }
 

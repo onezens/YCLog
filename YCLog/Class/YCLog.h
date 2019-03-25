@@ -16,10 +16,10 @@
 #define LOG_LEVEL_DEF YCLogLevelDebug
 #endif
 
-#define YCLogError(frmt,...) [YCLogManager logLevel:LOG_LEVEL_DEF flag:YCLogFlagError function:__FILE__ line:__LINE__ format:frmt, ##__VA_ARGS__]
-#define YCLogWarn(frmt,...) [YCLogManager logLevel:LOG_LEVEL_DEF flag:YCLogFlagWarn function:__FILE__ line:__LINE__ format:frmt, ##__VA_ARGS__]
-#define YCLogInfo(frmt,...) [YCLogManager logLevel:LOG_LEVEL_DEF flag:YCLogFlagInfo function:__FILE__ line:__LINE__ format:frmt, ##__VA_ARGS__]
-#define YCLogDebug(frmt,...) [YCLogManager logLevel:LOG_LEVEL_DEF flag:YCLogFlagDebug function:__FILE__ line:__LINE__ format:frmt, ##__VA_ARGS__]
+#define YCLogError(frmt,...) [YCLogManager logLevel:LOG_LEVEL_DEF flag:YCLogFlagError file:__FILE__ line:__LINE__ format:frmt, ##__VA_ARGS__]
+#define YCLogWarn(frmt,...) [YCLogManager logLevel:LOG_LEVEL_DEF flag:YCLogFlagWarn file:__FILE__ line:__LINE__ format:frmt, ##__VA_ARGS__]
+#define YCLogInfo(frmt,...) [YCLogManager logLevel:LOG_LEVEL_DEF flag:YCLogFlagInfo file:__FILE__ line:__LINE__ format:frmt, ##__VA_ARGS__]
+#define YCLogDebug(frmt,...) [YCLogManager logLevel:LOG_LEVEL_DEF flag:YCLogFlagDebug file:__FILE__ line:__LINE__ format:frmt, ##__VA_ARGS__]
 
 
 

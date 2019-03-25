@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		35B1047B2248821B005A8C27 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 35B104792248821B005A8C27 /* GCDAsyncSocket.m */; };
 		35B1047C2248821B005A8C27 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 35B104792248821B005A8C27 /* GCDAsyncSocket.m */; };
+		35B1048E2248AB63005A8C27 /* YCLogServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 35B1048D2248AB63005A8C27 /* YCLogServer.m */; };
 		35C06708224336D100C060EF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C06707224336D100C060EF /* AppDelegate.m */; };
 		35C0670B224336D100C060EF /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C0670A224336D100C060EF /* ViewController.m */; };
 		35C0670E224336D100C060EF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 35C0670C224336D100C060EF /* Main.storyboard */; };
@@ -35,6 +36,8 @@
 /* Begin PBXFileReference section */
 		35B104792248821B005A8C27 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 		35B1047A2248821B005A8C27 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
+		35B1048C2248AB63005A8C27 /* YCLogServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YCLogServer.h; sourceTree = "<group>"; };
+		35B1048D2248AB63005A8C27 /* YCLogServer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YCLogServer.m; sourceTree = "<group>"; };
 		35C06703224336D100C060EF /* YCLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YCLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		35C06706224336D100C060EF /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		35C06707224336D100C060EF /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -141,6 +144,8 @@
 			isa = PBXGroup;
 			children = (
 				35C0672A22436D5000C060EF /* main.m */,
+				35B1048C2248AB63005A8C27 /* YCLogServer.h */,
+				35B1048D2248AB63005A8C27 /* YCLogServer.m */,
 			);
 			path = YConsole;
 			sourceTree = "<group>";
@@ -251,6 +256,7 @@
 			files = (
 				35B1047C2248821B005A8C27 /* GCDAsyncSocket.m in Sources */,
 				35C0672B22436D5000C060EF /* main.m in Sources */,
+				35B1048E2248AB63005A8C27 /* YCLogServer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

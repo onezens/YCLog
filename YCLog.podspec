@@ -11,6 +11,7 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |c|
     c.source_files  = "YCLog/Class/*.{h,m}"
     c.public_header_files = "YCLog/Class/*.h"
+    c.dependency 'CocoaAsyncSocket'
   end
 
   s.default_subspec = 'Core'

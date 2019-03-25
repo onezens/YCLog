@@ -16,7 +16,7 @@
 @property (nonatomic, strong) NSMutableArray <NSNetService *> *bonjourServers;
 @property (nonatomic, strong) GCDAsyncSocket *socket;
 @property (nonatomic, strong) NSArray <NSData *> *addresses;
-@property (nonatomic, assign) BOOL isConnected;
+
 @end
 
 
@@ -43,50 +43,34 @@
 
 
 - (void)sendMsg:(NSData *)msgData {
-    if (self.addresses.count==0) {
-        NSLog(@"need retry search");
-        return;
-    }
     if (!self.isConnected) {
         [self connectToServer];
     }
     if (self.socket) {
         [self.socket writeData:msgData withTimeout:kConnectTimeOut tag:1001];
-    }else{
-        NSLog(@"socket send msg error");
     }
 }
 
 - (void)connectToServer {
     if (self.addresses.count==0) {
-        NSLog(@"searched server address empty!");
         return;
     }
     NSError *err = nil;
     [_socket connectToAddress:self.addresses.firstObject error:&err];
-    if (err) {
-        NSLog(@"connect server socket error");
-    }else{
-        NSLog(@"connect server socket success");
-    }
 }
 
 #pragma mark - NSNetServiceBrowserDelegate
 
 - (void)netServiceBrowserWillSearch:(NSNetServiceBrowser *)browser {
-    NSLog(@"%s", __func__);
 }
 
 - (void)netServiceBrowserDidStopSearch:(NSNetServiceBrowser *)browser {
-    NSLog(@"%s", __func__);
 }
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)browser didNotSearch:(NSDictionary<NSString *, NSNumber *> *)errorDict {
-    NSLog(@"%s", __func__);
 }
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)browser didFindDomain:(NSString *)domainString moreComing:(BOOL)moreComing {
-    NSLog(@"%s", __func__);
 }
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)browser didFindService:(NSNetService *)service moreComing:(BOOL)moreComing {
@@ -97,30 +81,21 @@
     }
 }
 
-- (void)netServiceBrowser:(NSNetServiceBrowser *)browser didRemoveDomain:(NSString *)domainString moreComing:(BOOL)moreComing {
-    NSLog(@"%s", __func__);
-}
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)browser didRemoveService:(NSNetService *)service moreComing:(BOOL)moreComing {
-    NSLog(@"%s", __func__);
     self.addresses = nil;
 }
 
 #pragma mark - NSNetServiceDelegate
 
-- (void)netService:(NSNetService *)sender didNotPublish:(NSDictionary<NSString *, NSNumber *> *)errorDict {
-    NSLog(@"%s", __func__);
-}
 
 - (void)netServiceDidResolveAddress:(NSNetService *)sender {
-    NSLog(@"bonjour server name: %@, hostname: %@, port:  %zd ",sender.name, sender.hostName, sender.port);
     self.addresses = sender.addresses;
     [self connectToServer];
 }
 
 
 - (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary<NSString *, NSNumber *> *)errorDict {
-    NSLog(@"%s", __func__);
 }
 
 - (void)netServiceDidStop:(NSNetService *)sender {
@@ -138,14 +113,12 @@
 }
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err {
-    NSLog(@"%s", __func__);
     //TODO:retry connect
     self.isConnected = false;
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag {
     NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"[Client] Received: %@", text);
     text = [text stringByAppendingString:@"\n"];
     [sock readDataWithTimeout:-1 tag:0];
 }

@@ -11,9 +11,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface YCLogClient : NSObject
+@property (nonatomic, assign) BOOL isConnected;
 
 - (void)sendMsg:(NSData *)msgData;
-
 @end
 
 NS_ASSUME_NONNULL_END

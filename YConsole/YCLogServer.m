@@ -9,8 +9,6 @@
 #import "YCLogServer.h"
 #import "GCDAsyncSocket.h"
 
-#define kBonjourServerSocketPost 30981
-
 @interface YCLogServer()<NSNetServiceDelegate, GCDAsyncSocketDelegate>
 @property (nonatomic, strong) NSMutableArray *clients;
 @property (nonatomic, strong) NSNetService *bonjourServer;
@@ -22,7 +20,7 @@
 - (void)createServer {
     _asyncSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
     NSError *err = nil;
-    if ([_asyncSocket acceptOnPort:kBonjourServerSocketPost error:&err]) {
+    if ([_asyncSocket acceptOnPort:0 error:&err]) {
         _clients = [NSMutableArray array];
         _bonjourServer = [[NSNetService alloc] initWithDomain:@"local."
                                                          type:@"_YCLogBonjour._tcp."
@@ -31,9 +29,6 @@
         
         _bonjourServer.delegate = self;
         [_bonjourServer publish];
-    }
-    if (err) {
-        NSLog(@"start socket error: %@", err);
     }
 }
 

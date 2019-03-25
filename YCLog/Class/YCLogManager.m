@@ -36,52 +36,81 @@
 #define COLOR_WHITE         "\e[0;37m"
 #define COLOR_WHITE_DARK    "\e[2;37m"
 
-void HandleException(NSException *exception)
-{
+@interface YCLogManager()
++ (void)_logLevel:(YCLogLevel)level flag:(YCLogFlag)flag fileName:(NSString *)fileName line:(NSUInteger)line allLog:(NSString *)allLog;
+
+@end
+
+
+void HandleException(NSException *exception) {
     // 异常的堆栈信息
     NSArray *stackArray = [exception callStackSymbols];
-    
     // 出现异常的原因
     NSString *reason = [exception reason];
-    
     // 异常名称
     NSString *name = [exception name];
-    
     NSString *exceptionInfo = [NSString stringWithFormat:@"Exception reason：%@\nException name：%@\nException stack：%@",name, reason, stackArray];
-    
-    [YCLogManager logLevel:YCLogLevelError flag:YCLogFlagError file:NULL line:0 format:@"%@",exceptionInfo];
-
+    [YCLogManager _logLevel:YCLogLevelError flag:YCLogFlagError fileName:nil line:0 allLog:exceptionInfo];
 }
 
-
-void InstallUncaughtExceptionHandler(void)
-{
+void InstallUncaughtExceptionHandler(void) {
     NSSetUncaughtExceptionHandler(&HandleException);
 }
-
 
 @implementation YCLogManager
 NSFileHandle *fh ;
 YCLogClient *_logClient;
+NSString *_logPath;
 
-+ (void)log:(NSString *)log, ...{
-    if (!log) return;
-    va_list args;
-    va_start(args, log);
-    NSString *allLog = [[NSString alloc] initWithFormat:log arguments:args];
-    NSLog(@"%@", allLog);
-}
-
-+ (void)logLevel:(YCLogLevel)level flag:(YCLogFlag)flag file:(const char *)file line:(NSUInteger)line format:(NSString *)format, ... {
++ (void)initLogBase {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         InstallUncaughtExceptionHandler();
         _logClient = [[YCLogClient alloc] init];
     });
-    if (!format) return;
+}
+
++ (void)logLevel:(YCLogLevel)level flag:(YCLogFlag)flag file:(const char *)file line:(NSUInteger)line format:(NSString *)format, ... {
+
+    [self initLogBase];
+    if (!format | !(level&flag)) return;
+
     va_list args;
     va_start(args, format);
-    if(!(level&flag)) return;
+    NSString *allLog = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+    
+    NSString *fileName = nil;
+    if (file != NULL) {
+        fileName = [NSString stringWithCString:file encoding:NSUTF8StringEncoding].lastPathComponent;
+    }
+    [self _logLevel:level flag:flag fileName:fileName line:line allLog:allLog];
+    [self _logConsoleLevel:level flag:flag fileName:fileName line:line allLog:allLog];
+}
+
++ (void)_logConsoleLevel:(YCLogLevel)level flag:(YCLogFlag)flag fileName:(NSString *)fileName line:(NSUInteger)line allLog:(NSString *)allLog {
+    NSString *flagDesc = nil;
+    switch (flag) {
+        case YCLogFlagError:
+            flagDesc = [NSString stringWithFormat:@"<ERROR>"];
+            break;
+        case YCLogFlagWarn:
+            flagDesc = [NSString stringWithFormat:@"<WARN>"];
+            break;
+        case YCLogFlagInfo:
+            flagDesc = [NSString stringWithFormat:@"<INFO>"];
+            break;
+        case YCLogFlagDebug:
+            flagDesc = [NSString stringWithFormat:@"<DEBUG>"];
+            break;
+        default:
+            break;
+    }
+    NSString *log = [NSString stringWithFormat:@"%@ [%@:%lu] %@", flagDesc, fileName, line, allLog];
+    NSLog(@"%@",log);
+}
+
++ (void)_logLevel:(YCLogLevel)level flag:(YCLogFlag)flag fileName:(NSString *)fileName line:(NSUInteger)line allLog:(NSString *)allLog {
     NSString *flagDesc = nil;
     switch (flag) {
         case YCLogFlagError:
@@ -99,34 +128,60 @@ YCLogClient *_logClient;
         default:
             break;
     }
-    NSString *allLog = [[NSString alloc] initWithFormat:format arguments:args];
-    va_end(args);
-    NSString *fileName = nil;
-    if (file != NULL) {
-        fileName = [NSString stringWithCString:file encoding:NSUTF8StringEncoding].lastPathComponent;
-    }
+    
     NSDateFormatter *df = [[NSDateFormatter alloc] init];
-    [df setDateFormat:@"MMM dd HH:mm:ss"];
+    [df setDateFormat:@"MM/dd HH:mm:ss"];
     NSString *dateStr = [df stringFromDate:[NSDate date]];
     NSString *deviceName = [UIDevice currentDevice].name;
     NSString *appName = [NSBundle mainBundle].infoDictionary[@"CFBundleName"];
     
     NSString *log = [NSString stringWithFormat:@"%s%@ %@%s %@ %@ [%@:%lu] :%s %@ \n",COLOR_GRay,dateStr , deviceName, COLOR_CYAN, appName ,flagDesc, fileName, (unsigned long)line, COLOR_RESET, allLog];
     
-    [self logInfoToFile:log];
+    if (_logClient.isConnected) {
+        [self logToServer:log];
+        return;
+    }
+    [self logIphone:log dateStr:dateStr];
+    
 }
 
-+ (void)logInfoToFile:(NSString *)log {
-    [self logfile:[log dataUsingEncoding:NSUTF8StringEncoding]];
++ (NSString *)getLocalPhonePath{
+    NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
+    path = [path stringByAppendingPathComponent:@"YCLog"];
+    NSDateFormatter *df = [[NSDateFormatter alloc] init];
+    [df setDateFormat:@"MM-dd"];
+    NSString *dateStr = [df stringFromDate:[NSDate date]];
+    NSString *logfile = [path stringByAppendingFormat:@"/%@.log",dateStr];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:true attributes:nil error:nil];
+        [[NSFileManager defaultManager] createFileAtPath:logfile contents:nil attributes:nil];
+    }
+    return logfile;
 }
 
-+ (void)logfile:(NSData *)data {
++ (void)logIphone:(NSString *)log dateStr:(NSString *)dateStr{
+    if (!_logPath) {
+        _logPath = [self getLocalPhonePath];
+    }
+    [self logInfoToFile:log path:_logPath];
+    
+}
+
++ (void)logToServer:(NSString *)log {
+    [_logClient sendMsg:[log dataUsingEncoding:NSUTF8StringEncoding]];
+}
+
++ (void)logInfoToFile:(NSString *)log path:(NSString *)path{
+    NSData *logData = [log dataUsingEncoding:NSUTF8StringEncoding];
     if (!fh) {
-        fh = [NSFileHandle fileHandleForWritingAtPath:@"/Users/wz/Desktop/1.log"];
+        fh = [NSFileHandle fileHandleForWritingAtPath:path];
         [fh seekToEndOfFile];
     }
-    [fh writeData:data];
-    [_logClient sendMsg:data];
+    [fh writeData:logData];
+    [_logClient sendMsg:logData];
 }
+
+
+
 
 @end

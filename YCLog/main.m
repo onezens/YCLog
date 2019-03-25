@@ -2,8 +2,8 @@
 //  main.m
 //  YCLog
 //
-//  Created by wz on 2018/2/8.
-//  Copyright © 2018年 wz. All rights reserved.
+//  Created by wz on 2019/3/21.
+//  Copyright © 2019 wz. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

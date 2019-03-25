@@ -2,53 +2,34 @@
 //  AppDelegate.m
 //  YCLog
 //
-//  Created by wz on 2018/2/8.
-//  Copyright © 2018年 wz. All rights reserved.
+//  Created by wz on 2019/3/21.
+//  Copyright © 2019 wz. All rights reserved.
 //
+
 #import "AppDelegate.h"
 #import "YCLog.h"
-#import "ViewController.h"
-
+#import "YCLogClient.h"
 
 @interface AppDelegate ()
 
 @end
-
 
 @implementation AppDelegate
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+//    YCLog(@"name: %@ age: %d info: %@",@"xiaoming", 20, @{@"s":@20, @"cls": @"apple"});
     
-    [self logTest];
-    
-    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    ViewController *vc = [ViewController new];
-    vc.view.backgroundColor = [UIColor whiteColor];
-    self.window.rootViewController = vc;
-    [self.window makeKeyAndVisible];
-    
-    return YES;
-}
+//    [YCLogManager logLevel:YCLogLevelAll flag:YCLogFlagError function:__PRETTY_FUNCTION__ line:__LINE__ format:@"name: %@ age: %d info: %@",@"xiaoming", 20, @{@"s":@20, @"cls": @"apple"}];
 
-- (void)logTest {
+    YCLogError(@"error");
+    YCLogWarn(@"warn");
+    YCLogInfo(@"info");
+    YCLogDebug(@"debug");
     
-    YCLogInfo(@"YCLogInfo");
-    
-    YCLogError(@"YCLogError");
-    
-    YCLogWarn(@"YCLogWarn");
-    
-    YCLogDebug(@"YCLogDebug ");
-    
-    NSDictionary *dict = @{@"name":@"xiaoming", @"age":@20, @"sex":@"male", @"bio":@"stay foolish, stay hungry"};
-    
-    YCLogInfo(@"profile data: %@", dict);
-    
-    YCLogError(@"YCLogError");
-    
-    YCLogWarn(@"YCLogWarn");
+
+    return YES;
 }
 
 

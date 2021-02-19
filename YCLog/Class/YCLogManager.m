@@ -62,6 +62,11 @@ NSFileHandle *fh ;
 YCLogClient *_logClient;
 NSString *_logPath;
 
++ load
+{
+    [self initLogBase];
+}
+
 + (void)initLogBase {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -86,6 +91,53 @@ NSString *_logPath;
     }
     [self _logLevel:level flag:flag fileName:fileName line:line allLog:allLog];
     [self _logConsoleLevel:level flag:flag fileName:fileName line:line allLog:allLog];
+}
+
++ (void)logLevel:(YCLogLevel)level flag:(YCLogFlag)flag bizId:(NSString *)bizId file:(const char *)file line:(NSUInteger)line format:(NSString *)format, ...
+{
+    [self initLogBase];
+    if (!format | !(level&flag)) return;
+
+    va_list args;
+    va_start(args, format);
+    NSString *allLog = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+    
+    NSString *fileName = nil;
+    if (file != NULL) {
+        fileName = [NSString stringWithCString:file encoding:NSUTF8StringEncoding].lastPathComponent;
+    }
+    NSString *flagDesc = nil;
+    switch (flag) {
+        case YCLogFlagError:
+            flagDesc = [NSString stringWithFormat:@"%s<ERROR>%s",COLOR_YELLOW, COLOR_RED_BOLD];
+            break;
+        case YCLogFlagWarn:
+            flagDesc = [NSString stringWithFormat:@"%s<WARN>%s", COLOR_YELLOW, COLOR_GREEN_BOLD];
+            break;
+        case YCLogFlagInfo:
+            flagDesc = [NSString stringWithFormat:@"%s<INFO>%s", COLOR_YELLOW, COLOR_MAGENTA_BOLD];
+            break;
+        case YCLogFlagDebug:
+            flagDesc = [NSString stringWithFormat:@"%s<DEBUG>%s", COLOR_YELLOW, COLOR_BLUE_BOLD];
+            break;
+        default:
+            break;
+    }
+    
+    NSDateFormatter *df = [[NSDateFormatter alloc] init];
+    [df setDateFormat:@"YYYY-MM-dd HH:mm:ss.SSS"];
+    NSString *dateStr = [df stringFromDate:[NSDate date]];
+    NSString *deviceName = [UIDevice currentDevice].name;
+    NSString *appName = [NSBundle mainBundle].infoDictionary[@"CFBundleName"];
+    
+    NSString *log = [NSString stringWithFormat:@"%@ %@ %@ [%@:%lu] :%s %@ \n",dateStr , bizId, flagDesc, fileName, (unsigned long)line, COLOR_RESET, allLog];
+    
+    if (_logClient.isConnected) {
+        [self logToServer:log];
+        return;
+    }
+    [self logIphone:log dateStr:dateStr];
 }
 
 + (void)_logConsoleLevel:(YCLogLevel)level flag:(YCLogFlag)flag fileName:(NSString *)fileName line:(NSUInteger)line allLog:(NSString *)allLog {
@@ -130,12 +182,12 @@ NSString *_logPath;
     }
     
     NSDateFormatter *df = [[NSDateFormatter alloc] init];
-    [df setDateFormat:@"MM/dd HH:mm:ss"];
+    [df setDateFormat:@"YYYY-MM-dd HH:mm:ss.SSS"];
     NSString *dateStr = [df stringFromDate:[NSDate date]];
     NSString *deviceName = [UIDevice currentDevice].name;
     NSString *appName = [NSBundle mainBundle].infoDictionary[@"CFBundleName"];
     
-    NSString *log = [NSString stringWithFormat:@"%s%@ %@%s %@ %@ [%@:%lu] :%s %@ \n",COLOR_GRay,dateStr , deviceName, COLOR_CYAN, appName ,flagDesc, fileName, (unsigned long)line, COLOR_RESET, allLog];
+    NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@:%lu] :%s %@ \n",dateStr , deviceName, appName ,flagDesc, fileName, (unsigned long)line, COLOR_RESET, allLog];
     
     if (_logClient.isConnected) {
         [self logToServer:log];

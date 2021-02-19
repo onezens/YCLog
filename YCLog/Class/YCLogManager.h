@@ -44,6 +44,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)logLevel:(YCLogLevel)level
             flag:(YCLogFlag)flag
+           bizId:(NSString *)bizId
+            file:(const char *)file
+            line:(NSUInteger)line
+          format:(NSString *)format, ... ;
+
++ (void)logLevel:(YCLogLevel)level
+            flag:(YCLogFlag)flag
             file:(const char *)file
             line:(NSUInteger)line
           format:(NSString *)format, ... NS_FORMAT_FUNCTION(5,6);

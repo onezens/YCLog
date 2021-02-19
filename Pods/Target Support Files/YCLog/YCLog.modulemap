@@ -1,0 +1,6 @@
+framework module YCLog {
+  umbrella header "YCLog-umbrella.h"
+
+  export *
+  module * { export * }
+}

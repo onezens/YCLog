@@ -1,0 +1,32 @@
+{
+  "name": "YCLog",
+  "version": "0.0.1",
+  "summary": "iOS console log",
+  "homepage": "https://github.com/onezens/YCLog",
+  "license": "MIT",
+  "authors": {
+    "onezens": "mail@onezen.cc"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source": {
+    "git": "https://github.com/onezens/YCLog.git",
+    "tag": "0.0.1"
+  },
+  "default_subspecs": "Core",
+  "requires_arc": true,
+  "frameworks": "CFNetwork",
+  "subspecs": [
+    {
+      "name": "Core",
+      "source_files": "YCLog/Class/*.{h,m}",
+      "public_header_files": "YCLog/Class/*.h",
+      "dependencies": {
+        "CocoaAsyncSocket": [
+
+        ]
+      }
+    }
+  ]
+}

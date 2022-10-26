@@ -11,12 +11,23 @@
 #import "YCLogClient.h"
 #import "GCDAsyncSocket.h"
 
+typedef enum : NSUInteger {
+    YCLogClientDisConnect,
+    YCLogClientConnecting,
+    YCLogClientConnected,
+} YCLogClientStatus;
+
 @interface YCLogClient()<NSNetServiceBrowserDelegate , NSNetServiceDelegate, GCDAsyncSocketDelegate>
 @property (nonatomic, strong) NSNetServiceBrowser *bonjourClient;
 @property (nonatomic, strong) NSMutableArray <NSNetService *> *bonjourServers;
 @property (nonatomic, strong) GCDAsyncSocket *socket;
 @property (nonatomic, strong) NSArray <NSData *> *addresses;
-
+@property (nonatomic, strong) NSMutableArray <NSData *> *logQueue;
+@property (nonatomic, strong) NSFileHandle *fh;
+@property (nonatomic, copy) NSString *logPath;
+@property (nonatomic, strong) dispatch_queue_t clientQueue;
+@property (nonatomic, assign) YCLogClientStatus status;
+@property (nonatomic, assign) NSInteger addressIdx;
 @end
 
 
@@ -32,39 +43,80 @@
 - (BOOL)createClient {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        self->_bonjourClient = [[NSNetServiceBrowser alloc] init];
-        [self->_bonjourClient setDelegate:self];
-        [self->_bonjourClient searchForServicesOfType:@"_YCLogBonjour._tcp." inDomain:@"local."];
-        self->_bonjourServers = [NSMutableArray array];
-        self->_socket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
+        [self initClient];
     });
     return true;
 }
 
-
-- (void)sendMsg:(NSData *)msgData {
-    if (!self.isConnected) {
-        [self connectToServer];
-    }
-    if (self.socket) {
-        [self.socket writeData:msgData withTimeout:kConnectTimeOut tag:1001];
-    }
+- (void)initClient
+{
+    self.clientQueue = dispatch_queue_create("YCLog.client", DISPATCH_QUEUE_SERIAL);
+    self.bonjourClient = [[NSNetServiceBrowser alloc] init];
+    [self.bonjourClient scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+    [self.bonjourClient setDelegate:self];
+    self.bonjourClient.includesPeerToPeer = true;
+    [self.bonjourClient searchForServicesOfType:@"_YCLogBonjour._tcp." inDomain:@"local."];
+    self.bonjourServers = [NSMutableArray array];
+    self.socket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.clientQueue];
+    [self initLogQueue];
 }
 
-- (void)connectToServer {
+- (void)initLogQueue
+{
+    dispatch_async(self.clientQueue, ^{
+        NSMutableArray *logQueue = [NSMutableArray array];
+        NSDateFormatter *df = [[NSDateFormatter alloc] init];
+        [df setDateFormat:@"YYYY-MM-dd HH:mm:ss.SSS"];
+        NSString *dateStr = [df stringFromDate:[NSDate date]];
+        NSString *initLog = @"";
+        initLog = [initLog stringByAppendingFormat:@"\n\n**************************************************************************************\n"];
+        initLog = [initLog stringByAppendingFormat:@" YCLog v1.0.1 Init: %@\n", dateStr];
+        initLog = [initLog stringByAppendingFormat:@" Sandbox Log Path: %@\n", [self getLocalPhonePath]];
+        initLog = [initLog stringByAppendingFormat:@"**************************************************************************************\n"];
+        NSData *data = [initLog dataUsingEncoding:NSUTF8StringEncoding];
+        [logQueue addObject:data];
+        [self logIphone:data];
+        self.logQueue = logQueue;
+    });
+}
+
+
+- (void)sendMsg:(NSData *)msgData
+{
+    dispatch_async(self.clientQueue, ^{
+        [self logIphone:msgData];
+        if (self.status != YCLogClientConnected) {
+            [self connectToServer];
+            [self.logQueue addObject:msgData];
+            return;
+        }
+        [self.socket writeData:msgData withTimeout:kConnectTimeOut tag:1001];
+    });
+}
+
+- (void)connectToServer
+{
     if (self.addresses.count==0) {
         return;
     }
+    if (self.status != YCLogClientDisConnect) return;
+    self.status = YCLogClientConnecting;
     NSError *err = nil;
-    [_socket connectToAddress:self.addresses.firstObject error:&err];
+    // 链接超时后，换一个新的地址重连
+    BOOL isConnect = [_socket connectToAddress:self.addresses[self.addressIdx] withTimeout:2 error:&err];
+    if (!isConnect || err != nil) {
+        NSLog(@"[connectToServer] error: %@", err);
+    }
 }
 
 #pragma mark - NSNetServiceBrowserDelegate
 
-- (void)netServiceBrowserWillSearch:(NSNetServiceBrowser *)browser {
+- (void)netServiceBrowserWillSearch:(NSNetServiceBrowser *)browser
+{
 }
 
-- (void)netServiceBrowserDidStopSearch:(NSNetServiceBrowser *)browser {
+- (void)netServiceBrowserDidStopSearch:(NSNetServiceBrowser *)browser
+{
 }
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)browser didNotSearch:(NSDictionary<NSString *, NSNumber *> *)errorDict {
@@ -90,8 +142,13 @@
 
 
 - (void)netServiceDidResolveAddress:(NSNetService *)sender {
-    self.addresses = sender.addresses;
+    NSLog(@"name: %@  host: %@ domain: %@ type: %@ port: %zd", sender.name, sender.hostName, sender.domain, sender.type, sender.port);
+    [sender.addresses enumerateObjectsUsingBlock:^(NSData * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSLog(@"address: %@", [[NSString alloc] initWithData:obj encoding:NSUTF8StringEncoding]);
+    }];
+    self.addresses = sender.addresses.copy;
     [self connectToServer];
+//    [self.bonjourClient removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 }
 
 
@@ -107,14 +164,32 @@
 
 #pragma mark - GCDAsyncSocketDelegate
 
-- (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port {
+- (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
+{
     [sock readDataWithTimeout:kConnectTimeOut tag:1000];
-    self.isConnected = true;
+    self.status = YCLogClientConnected;
+    if (self.logQueue.count > 0) {
+        NSArray *pendingLogs = self.logQueue.copy;
+        [self.logQueue removeAllObjects];
+        [pendingLogs enumerateObjectsUsingBlock:^(NSData * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            [self sendMsg:obj];
+        }];
+    }
 }
 
-- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err {
+- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
+{
     //TODO:retry connect
-    self.isConnected = false;
+    self.status = YCLogClientDisConnect;
+    self.addressIdx += 1;
+    if (self.addressIdx >= self.addresses.count) {
+        self.addressIdx = 0;
+    }
+    //TODO: handler max retry time
+    if (err.code == 3) { //Error Domain=GCDAsyncSocketErrorDomain Code=3 "Attempt to connect to host timed out" UserInfo={NSLocalizedDescription=Attempt to connect to host timed out}
+        [self connectToServer];
+    }
+    
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag {
@@ -122,5 +197,43 @@
     text = [text stringByAppendingString:@"\n"];
     [sock readDataWithTimeout:-1 tag:0];
 }
+
+#pragma mark - log file
+
+- (NSString *)getLocalPhonePath
+{
+    NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
+    path = [path stringByAppendingPathComponent:@"YCLog"];
+    NSDateFormatter *df = [[NSDateFormatter alloc] init];
+    [df setDateFormat:@"MM-dd"];
+    NSString *dateStr = [df stringFromDate:[NSDate date]];
+    NSString *logfile = [path stringByAppendingFormat:@"/%@.log",dateStr];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:true attributes:nil error:nil];
+        [[NSFileManager defaultManager] createFileAtPath:logfile contents:nil attributes:nil];
+    }
+    return logfile;
+}
+
+- (void)logIphone:(NSData *)log
+{
+    if (!_logPath) {
+        _logPath = [self getLocalPhonePath];
+    }
+    [self logInfoToFile:log path:_logPath];
+    
+}
+
+- (void)logInfoToFile:(NSData *)log path:(NSString *)path
+{
+    NSAssert(![NSThread isMainThread], @"log to file can not main thread!");
+    NSFileHandle *fh = self.fh;
+    if (!fh) {
+        fh = [NSFileHandle fileHandleForWritingAtPath:path];
+        [fh seekToEndOfFile];
+    }
+    [fh writeData:log];
+}
+
 
 @end

@@ -1,26 +1,39 @@
 # YCLog
 iOS simply terminal color log
 
-## deviceconsole
-[https://github.com/MegaCookie/deviceconsole](https://github.com/MegaCookie/deviceconsole)
+## MacOS Install
+Compile YCLogConsole, then put it in the /usr/local/bin/ directory of your computer, and finally execute YCLogConsole in the terminal
 
-**Install deviceconsole:**
-
-```
-brew install https://raw.githubusercontent.com/onezens/deviceconsole/master/deviceconsole.rb
-```
-
-**log on console**
-
- Example app bundle id : `cc.onezen.YCLog` 
- Log all contain `YCLog` log info
+## Output log
 
 ```
-deviceconsole -i -f YCLog
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event 
+{
+    YCLogError(@"error");
+    YCLogWarn(@"warn");
+    YCLogInfo(@"info");
+    YCLogDebug(@"debug");
+    [self sendRequest];
+}
+
+- (void)sendRequest
+{
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *task = [session dataTaskWithURL:[NSURL URLWithString:@"http://api.onezen.cc/v1/video/list?page=1&size=1"] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (error) {
+            YCLogError(@"[sendRequest] error: %@",error);
+            return;
+        }
+        id obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+        YCLogInfo(@"[sendRequest] success result: %@", obj);
+    }];
+    [task resume];
+}
+
 ```
-## Terminal
-![http://oss.onezen.cc/img/yclog.jpg
-](http://oss.onezen.cc/img/yclog.jpg
-)
+
+## Terminal 
+![https://github.com/onezens/StorageCenter/blob/main/images/yclog.png?raw=true
+](https://github.com/onezens/StorageCenter/blob/main/images/yclog.png?raw=true)
 
 

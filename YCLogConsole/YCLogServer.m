@@ -28,6 +28,7 @@
                                                          port:_asyncSocket.localPort];
         
         _bonjourServer.delegate = self;
+        _bonjourServer.includesPeerToPeer = true;
         [_bonjourServer publish];
     }
 }
@@ -39,7 +40,9 @@
 
 #pragma mark - NSNetServiceDelegate
 
-- (void)netService:(NSNetService *)sender didNotPublish:(NSDictionary<NSString *, NSNumber *> *)errorDict {
+- (void)netService:(NSNetService *)sender didNotPublish:(NSDictionary<NSString *, NSNumber *> *)errorDict
+{
+    printf("YCLogServer publish error %s\n", errorDict.description.UTF8String);
 }
 
 - (void)netServiceDidResolveAddress:(NSNetService *)sender {
@@ -51,14 +54,17 @@
 }
 
 - (void)netServiceDidStop:(NSNetService *)sender {
-
+    printf("YCLogServer stop publish error \n");
 }
 
-- (void)netServiceDidPublish:(NSNetService *)ns{
+- (void)netServiceDidPublish:(NSNetService *)ns
+{
+    printf("YCLogServer publish  \n");
 }
 
 #pragma mark - GCDAsyncSocketDelegate
-- (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket{
+- (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
+{
     [self.clients addObject:newSocket];
     [newSocket readDataWithTimeout:-1 tag:0];
 }

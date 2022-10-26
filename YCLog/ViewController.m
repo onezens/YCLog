@@ -27,6 +27,21 @@
     YCLogWarn(@"warn");
     YCLogInfo(@"info");
     YCLogDebug(@"debug");
+    [self sendRequest];
+}
+
+- (void)sendRequest
+{
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *task = [session dataTaskWithURL:[NSURL URLWithString:@"http://api.onezen.cc/v1/video/list?page=1&size=1"] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (error) {
+            YCLogError(@"[sendRequest] error: %@",error);
+            return;
+        }
+        id obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+        YCLogInfo(@"[sendRequest] success result: %@", obj);
+    }];
+    [task resume];
 }
 
 

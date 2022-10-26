@@ -58,9 +58,7 @@ void InstallUncaughtExceptionHandler(void) {
 }
 
 @implementation YCLogManager
-NSFileHandle *fh ;
 YCLogClient *_logClient;
-NSString *_logPath;
 
 + (void)initLogBase {
     static dispatch_once_t onceToken;
@@ -114,73 +112,37 @@ NSString *_logPath;
     NSString *flagDesc = nil;
     switch (flag) {
         case YCLogFlagError:
-            flagDesc = [NSString stringWithFormat:@"%s<ERROR>%s",COLOR_GREEN, COLOR_RED_BOLD];
+            flagDesc = [NSString stringWithFormat:@"%s<ERROR>%s",COLOR_RED, COLOR_RED_BOLD];
             break;
         case YCLogFlagWarn:
-            flagDesc = [NSString stringWithFormat:@"%s<WARN>%s", COLOR_GREEN, COLOR_YELLOW_BOLD];
+            flagDesc = [NSString stringWithFormat:@"%s<WARN >%s", COLOR_YELLOW, COLOR_YELLOW_BOLD];
             break;
         case YCLogFlagInfo:
-            flagDesc = [NSString stringWithFormat:@"%s<INFO>%s", COLOR_GREEN, COLOR_MAGENTA_BOLD];
+            flagDesc = [NSString stringWithFormat:@"%s<INFO >%s", COLOR_GREEN, COLOR_MAGENTA_BOLD];
             break;
         case YCLogFlagDebug:
-            flagDesc = [NSString stringWithFormat:@"%s<DEBUG>%s", COLOR_GREEN, COLOR_CYAN_BOLD];
+            flagDesc = [NSString stringWithFormat:@"%s<DEBUG>%s", COLOR_GREEN, COLOR_BLUE_BOLD];
             break;
         default:
             break;
     }
     
     NSDateFormatter *df = [[NSDateFormatter alloc] init];
-    [df setDateFormat:@"MM/dd HH:mm:ss"];
+    [df setDateFormat:@"YYYY-MM-dd HH:mm:ss.SSS"];
     NSString *dateStr = [df stringFromDate:[NSDate date]];
     NSString *deviceName = [UIDevice currentDevice].name;
     NSString *appName = [NSBundle mainBundle].infoDictionary[@"CFBundleName"];
     
-    NSString *log = [NSString stringWithFormat:@"%s%@ %@%s %@ %@ [%@:%lu] :%s %@ \n",COLOR_GRay,dateStr , deviceName, COLOR_CYAN, appName ,flagDesc, fileName, (unsigned long)line, COLOR_RESET, allLog];
+    NSString *log = [NSString stringWithFormat:@"%s%@ %@%s %@ %@ [%@:%lu] :%s %@ \n",COLOR_CYAN,dateStr , deviceName, COLOR_CYAN, appName ,flagDesc, fileName, (unsigned long)line, COLOR_RESET, allLog];
     
-    if (_logClient.isConnected) {
-        [self logToServer:log];
-        return;
-    }
-    [self logIphone:log dateStr:dateStr];
-    
+    [self logToServer:log];
 }
 
-+ (NSString *)getLocalPhonePath{
-    NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
-    path = [path stringByAppendingPathComponent:@"YCLog"];
-    NSDateFormatter *df = [[NSDateFormatter alloc] init];
-    [df setDateFormat:@"MM-dd"];
-    NSString *dateStr = [df stringFromDate:[NSDate date]];
-    NSString *logfile = [path stringByAppendingFormat:@"/%@.log",dateStr];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
-        [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:true attributes:nil error:nil];
-        [[NSFileManager defaultManager] createFileAtPath:logfile contents:nil attributes:nil];
-    }
-    return logfile;
-}
 
-+ (void)logIphone:(NSString *)log dateStr:(NSString *)dateStr{
-    if (!_logPath) {
-        _logPath = [self getLocalPhonePath];
-    }
-    [self logInfoToFile:log path:_logPath];
-    
-}
 
 + (void)logToServer:(NSString *)log {
     [_logClient sendMsg:[log dataUsingEncoding:NSUTF8StringEncoding]];
 }
-
-+ (void)logInfoToFile:(NSString *)log path:(NSString *)path{
-    NSData *logData = [log dataUsingEncoding:NSUTF8StringEncoding];
-    if (!fh) {
-        fh = [NSFileHandle fileHandleForWritingAtPath:path];
-        [fh seekToEndOfFile];
-    }
-    [fh writeData:logData];
-    [_logClient sendMsg:logData];
-}
-
 
 
 

@@ -52,7 +52,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-f success debug"
+            argument = "-f success debug&amp;ddd  -b info"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface YCLogServer : NSObject
 @property (nonatomic, strong) NSArray *filterKeys;
+@property (nonatomic, strong) NSArray *blockKeys;
 - (void)createServer;
 @end
 

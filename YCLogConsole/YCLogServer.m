@@ -66,11 +66,11 @@
 
 - (NSData *)getConfigData
 {
-    if(self.filterKeys.count == 0) return nil;
     NSDictionary *config = @{
         @"type": @"config",
         @"data" : @{
-            @"filterKey": self.filterKeys
+            @"filterKey": self.filterKeys,
+            @"blockKey": self.blockKeys
         }
     };
     return [NSJSONSerialization dataWithJSONObject:config options:0 error:nil];
@@ -81,11 +81,9 @@
 {
     [self.clients addObject:newSocket];
     [newSocket readDataWithTimeout:-1 tag:0];
-    if(self.filterKeys.count>0){
-        NSData *data = [self getConfigData];
-        if(!data)  return;
-        [newSocket writeData:data withTimeout:-1 tag:10];
-    }
+    NSData *data = [self getConfigData];
+    if(!data) return;
+    [newSocket writeData:data withTimeout:-1 tag:10];
 }
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)socket withError:(NSError *)error{

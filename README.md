@@ -4,6 +4,20 @@ iOS simply terminal color log
 ## MacOS Install
 Compile YCLogConsole, then put it in the /usr/local/bin/ directory of your computer, and finally execute YCLogConsole in the terminal
 
+```
+# show all log
+$ YCLogConsole
+
+# show filter log
+$ YCLogConsole -i debug info
+
+# show filter debug & info log
+$ YCLogConsole -i 'debug&info'
+
+# block log
+$ YCLogConsole -b debug info
+```
+
 ## Output log
 
 ```

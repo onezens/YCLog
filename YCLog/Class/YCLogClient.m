@@ -29,6 +29,7 @@ typedef enum : NSUInteger {
 @property (nonatomic, assign) YCLogClientStatus status;
 @property (nonatomic, assign) NSInteger addressIdx;
 @property (nonatomic, strong) NSArray <NSString *> *filterKeys;
+@property (nonatomic, strong) NSArray <NSString *> *blockKeys;
 @end
 
 
@@ -87,7 +88,7 @@ typedef enum : NSUInteger {
     dispatch_async(self.clientQueue, ^{
         NSData *msgData = [msgContent dataUsingEncoding:NSUTF8StringEncoding];
         [self logIphone:msgData];
-        BOOL canLog = [self checkFilterWithMsg:msgContent];
+        BOOL canLog = [self canLogMsg:msgContent];
         if (self.status != YCLogClientConnected) {
             [self connectToServer];
             if(canLog) [self.logQueue addObject:msgContent];
@@ -99,11 +100,38 @@ typedef enum : NSUInteger {
     });
 }
 
+- (BOOL)canLogMsg:(NSString *)msg
+{
+    if ([msg containsString:@"Sandbox Log Path"])  return true;
+    BOOL can = [self checkFilterWithMsg:msg];
+    can = can && ![self isBlockMsg:msg];
+    return can;
+}
+
 - (BOOL)checkFilterWithMsg:(NSString *)msg
 {
     if(!self.filterKeys.count) return true;
     for (NSString *key in self.filterKeys) {
+        if([key containsString:@"&"]){
+            NSArray *keys = [key componentsSeparatedByString:@"&"];
+            for (NSString *andKey in keys) {
+                if(![msg containsString:andKey]){
+                    return false;
+                }
+            }
+            return true;
+        }
         if([msg containsString:key]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+- (BOOL)isBlockMsg:(NSString *)msg
+{
+    for (NSString *key in self.blockKeys) {
+        if([msg containsString:key]){
             return true;
         }
     }
@@ -159,12 +187,12 @@ typedef enum : NSUInteger {
 
 - (void)netServiceDidResolveAddress:(NSNetService *)sender {
     NSLog(@"name: %@  host: %@ domain: %@ type: %@ port: %zd", sender.name, sender.hostName, sender.domain, sender.type, sender.port);
-    [sender.addresses enumerateObjectsUsingBlock:^(NSData * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        NSLog(@"address: %@", [[NSString alloc] initWithData:obj encoding:NSUTF8StringEncoding]);
-    }];
+//    [sender.addresses enumerateObjectsUsingBlock:^(NSData * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+//        NSLog(@"address: %@", [[NSString alloc] initWithData:obj encoding:NSUTF8StringEncoding]);
+//    }];
     self.addresses = sender.addresses.copy;
     [self connectToServer];
-//    [self.bonjourClient removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+    //    [self.bonjourClient removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 }
 
 
@@ -182,15 +210,8 @@ typedef enum : NSUInteger {
 
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
 {
-    [sock readDataWithTimeout:kConnectTimeOut tag:1000];
+    [sock readDataWithTimeout:kConnectTimeOut tag:10];
     self.status = YCLogClientConnected;
-    if (self.logQueue.count > 0) {
-        NSArray *pendingLogs = self.logQueue.copy;
-        [self.logQueue removeAllObjects];
-        [pendingLogs enumerateObjectsUsingBlock:^(NSData * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            [self sendMsg:obj];
-        }];
-    }
 }
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
@@ -205,26 +226,36 @@ typedef enum : NSUInteger {
     if (err.code == 3) { //Error Domain=GCDAsyncSocketErrorDomain Code=3 "Attempt to connect to host timed out" UserInfo={NSLocalizedDescription=Attempt to connect to host timed out}
         [self connectToServer];
     }
-    
 }
 
-- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag {
+- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
+{
     NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"socket read data: %@  tag: %zd", text, tag);
     [self handlerSocketMsg:data];
     [sock readDataWithTimeout:-1 tag:tag];
 }
 
 - (void)handlerSocketMsg:(NSData *)msg
 {
-    if(!msg.length) return;
-    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:msg options:0 error:nil];
-    if([dict isKindOfClass:NSDictionary.class]){
-        NSString *type = [dict valueForKey:@"type"];
-        if([type isEqualToString:@"config"]){
-            NSDictionary *data = dict[@"data"];
-            self.filterKeys = [data valueForKey:@"filterKey"];
+    if(msg){
+        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:msg options:0 error:nil];
+        if([dict isKindOfClass:NSDictionary.class]){
+            NSString *type = [dict valueForKey:@"type"];
+            if([type isEqualToString:@"config"]){
+                NSDictionary *data = dict[@"data"];
+                self.filterKeys = [data valueForKey:@"filterKey"];
+                self.blockKeys = [data valueForKey:@"blockKey"];
+            }
         }
+    }
+    NSLog(@"YCLog filterKey: %@ blockKey: %@", self.filterKeys, self.blockKeys);
+    // send log queue msg to log server
+    if (self.logQueue.count > 0) {
+        NSArray *pendingLogs = self.logQueue.copy;
+        [self.logQueue removeAllObjects];
+        [pendingLogs enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            [self sendMsg:obj];
+        }];
     }
 }
 

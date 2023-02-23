@@ -95,7 +95,6 @@ YCLogConfig *_logConfig;
 {
     [self initLogBase];
     if (!format | !(level&flag)) return;
-
     va_list args;
     va_start(args, format);
     NSString *allLog = [[NSString alloc] initWithFormat:format arguments:args];
@@ -166,7 +165,7 @@ YCLogConfig *_logConfig;
 
 + (void)logToServer:(NSString *)log
 {
-    [_logClient sendMsg:[log dataUsingEncoding:NSUTF8StringEncoding]];
+    [_logClient sendMsg:log];
 }
 
 

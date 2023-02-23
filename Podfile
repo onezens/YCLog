@@ -8,5 +8,5 @@ end
 
 target 'YCLogConsole' do
   # Pods for YCLogConsole
-
+  pod 'CocoaAsyncSocket'
 end

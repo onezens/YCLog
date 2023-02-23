@@ -12,8 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface YCLogClient : NSObject
 
+- (void)sendMsg:(NSString *)msgContent;
 
-- (void)sendMsg:(NSData *)msgData;
 @end
 
 NS_ASSUME_NONNULL_END

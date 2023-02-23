@@ -62,11 +62,30 @@
     printf("YCLogServer publish  \n");
 }
 
+#pragma mark - data
+
+- (NSData *)getConfigData
+{
+    if(self.filterKeys.count == 0) return nil;
+    NSDictionary *config = @{
+        @"type": @"config",
+        @"data" : @{
+            @"filterKey": self.filterKeys
+        }
+    };
+    return [NSJSONSerialization dataWithJSONObject:config options:0 error:nil];
+}
+
 #pragma mark - GCDAsyncSocketDelegate
 - (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
 {
     [self.clients addObject:newSocket];
     [newSocket readDataWithTimeout:-1 tag:0];
+    if(self.filterKeys.count>0){
+        NSData *data = [self getConfigData];
+        if(!data)  return;
+        [newSocket writeData:data withTimeout:-1 tag:10];
+    }
 }
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)socket withError:(NSError *)error{

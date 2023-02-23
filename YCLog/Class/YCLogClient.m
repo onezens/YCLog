@@ -22,12 +22,13 @@ typedef enum : NSUInteger {
 @property (nonatomic, strong) NSMutableArray <NSNetService *> *bonjourServers;
 @property (nonatomic, strong) GCDAsyncSocket *socket;
 @property (nonatomic, strong) NSArray <NSData *> *addresses;
-@property (nonatomic, strong) NSMutableArray <NSData *> *logQueue;
+@property (nonatomic, strong) NSMutableArray <NSString *> *logQueue;
 @property (nonatomic, strong) NSFileHandle *fh;
 @property (nonatomic, copy) NSString *logPath;
 @property (nonatomic, strong) dispatch_queue_t clientQueue;
 @property (nonatomic, assign) YCLogClientStatus status;
 @property (nonatomic, assign) NSInteger addressIdx;
+@property (nonatomic, strong) NSArray <NSString *> *filterKeys;
 @end
 
 
@@ -73,25 +74,40 @@ typedef enum : NSUInteger {
         initLog = [initLog stringByAppendingFormat:@" YCLog v1.0.1 Init: %@\n", dateStr];
         initLog = [initLog stringByAppendingFormat:@" Sandbox Log Path: %@\n", [self getLocalPhonePath]];
         initLog = [initLog stringByAppendingFormat:@"**************************************************************************************\n"];
+        [logQueue addObject:initLog];
         NSData *data = [initLog dataUsingEncoding:NSUTF8StringEncoding];
-        [logQueue addObject:data];
         [self logIphone:data];
         self.logQueue = logQueue;
     });
 }
 
 
-- (void)sendMsg:(NSData *)msgData
+- (void)sendMsg:(NSString *)msgContent;
 {
     dispatch_async(self.clientQueue, ^{
+        NSData *msgData = [msgContent dataUsingEncoding:NSUTF8StringEncoding];
         [self logIphone:msgData];
+        BOOL canLog = [self checkFilterWithMsg:msgContent];
         if (self.status != YCLogClientConnected) {
             [self connectToServer];
-            [self.logQueue addObject:msgData];
+            if(canLog) [self.logQueue addObject:msgContent];
             return;
         }
-        [self.socket writeData:msgData withTimeout:kConnectTimeOut tag:1001];
+        if(canLog) {
+            [self.socket writeData:msgData withTimeout:kConnectTimeOut tag:1001];
+        }
     });
+}
+
+- (BOOL)checkFilterWithMsg:(NSString *)msg
+{
+    if(!self.filterKeys.count) return true;
+    for (NSString *key in self.filterKeys) {
+        if([msg containsString:key]) {
+            return true;
+        }
+    }
+    return false;
 }
 
 - (void)connectToServer
@@ -194,8 +210,22 @@ typedef enum : NSUInteger {
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag {
     NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    text = [text stringByAppendingString:@"\n"];
-    [sock readDataWithTimeout:-1 tag:0];
+    NSLog(@"socket read data: %@  tag: %zd", text, tag);
+    [self handlerSocketMsg:data];
+    [sock readDataWithTimeout:-1 tag:tag];
+}
+
+- (void)handlerSocketMsg:(NSData *)msg
+{
+    if(!msg.length) return;
+    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:msg options:0 error:nil];
+    if([dict isKindOfClass:NSDictionary.class]){
+        NSString *type = [dict valueForKey:@"type"];
+        if([type isEqualToString:@"config"]){
+            NSDictionary *data = dict[@"data"];
+            self.filterKeys = [data valueForKey:@"filterKey"];
+        }
+    }
 }
 
 #pragma mark - log file

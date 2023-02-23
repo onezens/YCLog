@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		35B1047B2248821B005A8C27 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 35B104792248821B005A8C27 /* GCDAsyncSocket.m */; };
-		35B1047C2248821B005A8C27 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 35B104792248821B005A8C27 /* GCDAsyncSocket.m */; };
 		35B1048E2248AB63005A8C27 /* YCLogServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 35B1048D2248AB63005A8C27 /* YCLogServer.m */; };
 		35C06708224336D100C060EF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C06707224336D100C060EF /* AppDelegate.m */; };
 		35C0670B224336D100C060EF /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C0670A224336D100C060EF /* ViewController.m */; };
@@ -16,12 +14,21 @@
 		35C06710224336D200C060EF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 35C0670F224336D200C060EF /* Assets.xcassets */; };
 		35C06713224336D200C060EF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 35C06711224336D200C060EF /* LaunchScreen.storyboard */; };
 		35C06716224336D200C060EF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C06715224336D200C060EF /* main.m */; };
-		35C067232243380E00C060EF /* YCLogManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C067222243380E00C060EF /* YCLogManager.m */; };
 		35C0672B22436D5000C060EF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C0672A22436D5000C060EF /* main.m */; };
-		35C067B32244CDA700C060EF /* YCLogClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 35C067B22244CDA700C060EF /* YCLogClient.m */; };
+		5C0D24E57E6FC632887FF69B /* libPods-YCLog.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A7E34067D97C25E97111F3A2 /* libPods-YCLog.a */; };
+		810467E68E3B8761E8E69160 /* libPods-YCLogConsole.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 02D870A08692C0FF97EC4E2F /* libPods-YCLogConsole.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		358533A1295ED57F000DEDDB /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		35C0672622436D5000C060EF /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -34,8 +41,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		35B104792248821B005A8C27 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
-		35B1047A2248821B005A8C27 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
+		02D870A08692C0FF97EC4E2F /* libPods-YCLogConsole.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-YCLogConsole.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		040911EEB3472B67D562174A /* Pods-YCLog.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YCLog.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YCLog/Pods-YCLog.debug.xcconfig"; sourceTree = "<group>"; };
+		1D37096ED106F91667B04AF9 /* Pods-YCLogConsole.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YCLogConsole.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YCLogConsole/Pods-YCLogConsole.debug.xcconfig"; sourceTree = "<group>"; };
+		358533A3295ED57F000DEDDB /* idevicesyslog */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = idevicesyslog; sourceTree = BUILT_PRODUCTS_DIR; };
 		35B1048C2248AB63005A8C27 /* YCLogServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YCLogServer.h; sourceTree = "<group>"; };
 		35B1048D2248AB63005A8C27 /* YCLogServer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YCLogServer.m; sourceTree = "<group>"; };
 		35C06703224336D100C060EF /* YCLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YCLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -48,20 +57,26 @@
 		35C06712224336D200C060EF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		35C06714224336D200C060EF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		35C06715224336D200C060EF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		35C06720224337C200C060EF /* YCLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YCLog.h; sourceTree = "<group>"; };
-		35C067212243380E00C060EF /* YCLogManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YCLogManager.h; sourceTree = "<group>"; };
-		35C067222243380E00C060EF /* YCLogManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YCLogManager.m; sourceTree = "<group>"; };
 		35C0672822436D5000C060EF /* YCLogConsole */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = YCLogConsole; sourceTree = BUILT_PRODUCTS_DIR; };
 		35C0672A22436D5000C060EF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		35C067B12244CDA700C060EF /* YCLogClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YCLogClient.h; sourceTree = "<group>"; };
-		35C067B22244CDA700C060EF /* YCLogClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YCLogClient.m; sourceTree = "<group>"; };
+		A7E34067D97C25E97111F3A2 /* libPods-YCLog.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-YCLog.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE34723F4078825CE149FA8A /* Pods-YCLog.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YCLog.release.xcconfig"; path = "Pods/Target Support Files/Pods-YCLog/Pods-YCLog.release.xcconfig"; sourceTree = "<group>"; };
+		F166384E3992DB0E854FB703 /* Pods-YCLogConsole.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YCLogConsole.release.xcconfig"; path = "Pods/Target Support Files/Pods-YCLogConsole/Pods-YCLogConsole.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		358533A0295ED57F000DEDDB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		35C06700224336D100C060EF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5C0D24E57E6FC632887FF69B /* libPods-YCLog.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,27 +84,20 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				810467E68E3B8761E8E69160 /* libPods-YCLogConsole.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		35B1048A2248AA68005A8C27 /* Thirdlib */ = {
+		22EA498D6EEC389892446FC6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				35B1048B2248AA73005A8C27 /* Socket */,
+				A7E34067D97C25E97111F3A2 /* libPods-YCLog.a */,
+				02D870A08692C0FF97EC4E2F /* libPods-YCLogConsole.a */,
 			);
-			path = Thirdlib;
-			sourceTree = "<group>";
-		};
-		35B1048B2248AA73005A8C27 /* Socket */ = {
-			isa = PBXGroup;
-			children = (
-				35B1047A2248821B005A8C27 /* GCDAsyncSocket.h */,
-				35B104792248821B005A8C27 /* GCDAsyncSocket.m */,
-			);
-			path = Socket;
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		35C066FA224336D000C060EF = {
@@ -98,6 +106,8 @@
 				35C06705224336D100C060EF /* YCLog */,
 				35C0672922436D5000C060EF /* YCLogConsole */,
 				35C06704224336D100C060EF /* Products */,
+				B2F4EA3F6E3C0B99DF057AEE /* Pods */,
+				22EA498D6EEC389892446FC6 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -106,6 +116,7 @@
 			children = (
 				35C06703224336D100C060EF /* YCLog.app */,
 				35C0672822436D5000C060EF /* YCLogConsole */,
+				358533A3295ED57F000DEDDB /* idevicesyslog */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -113,8 +124,6 @@
 		35C06705224336D100C060EF /* YCLog */ = {
 			isa = PBXGroup;
 			children = (
-				35B1048A2248AA68005A8C27 /* Thirdlib */,
-				35C0671C224336E500C060EF /* Class */,
 				35C06706224336D100C060EF /* AppDelegate.h */,
 				35C06707224336D100C060EF /* AppDelegate.m */,
 				35C06709224336D100C060EF /* ViewController.h */,
@@ -128,18 +137,6 @@
 			path = YCLog;
 			sourceTree = "<group>";
 		};
-		35C0671C224336E500C060EF /* Class */ = {
-			isa = PBXGroup;
-			children = (
-				35C06720224337C200C060EF /* YCLog.h */,
-				35C067B12244CDA700C060EF /* YCLogClient.h */,
-				35C067B22244CDA700C060EF /* YCLogClient.m */,
-				35C067212243380E00C060EF /* YCLogManager.h */,
-				35C067222243380E00C060EF /* YCLogManager.m */,
-			);
-			path = Class;
-			sourceTree = "<group>";
-		};
 		35C0672922436D5000C060EF /* YCLogConsole */ = {
 			isa = PBXGroup;
 			children = (
@@ -150,13 +147,42 @@
 			path = YCLogConsole;
 			sourceTree = "<group>";
 		};
+		B2F4EA3F6E3C0B99DF057AEE /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				040911EEB3472B67D562174A /* Pods-YCLog.debug.xcconfig */,
+				AE34723F4078825CE149FA8A /* Pods-YCLog.release.xcconfig */,
+				1D37096ED106F91667B04AF9 /* Pods-YCLogConsole.debug.xcconfig */,
+				F166384E3992DB0E854FB703 /* Pods-YCLogConsole.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		358533A2295ED57F000DEDDB /* idevicesyslog */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 358533A9295ED57F000DEDDB /* Build configuration list for PBXNativeTarget "idevicesyslog" */;
+			buildPhases = (
+				3585339F295ED57F000DEDDB /* Sources */,
+				358533A0295ED57F000DEDDB /* Frameworks */,
+				358533A1295ED57F000DEDDB /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = idevicesyslog;
+			productName = idevicesyslog;
+			productReference = 358533A3295ED57F000DEDDB /* idevicesyslog */;
+			productType = "com.apple.product-type.tool";
+		};
 		35C06702224336D100C060EF /* YCLog */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 35C06719224336D200C060EF /* Build configuration list for PBXNativeTarget "YCLog" */;
 			buildPhases = (
+				401598C95B731CBA1894EFC4 /* [CP] Check Pods Manifest.lock */,
 				35C066FF224336D100C060EF /* Sources */,
 				35C06700224336D100C060EF /* Frameworks */,
 				35C06701224336D100C060EF /* Resources */,
@@ -174,6 +200,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 35C0672C22436D5000C060EF /* Build configuration list for PBXNativeTarget "YCLogConsole" */;
 			buildPhases = (
+				784AAC9357053E2ED6A25345 /* [CP] Check Pods Manifest.lock */,
 				35C0672422436D5000C060EF /* Sources */,
 				35C0672522436D5000C060EF /* Frameworks */,
 				35C0672622436D5000C060EF /* CopyFiles */,
@@ -196,6 +223,9 @@
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = wz;
 				TargetAttributes = {
+					358533A2295ED57F000DEDDB = {
+						CreatedOnToolsVersion = 14.1;
+					};
 					35C06702224336D100C060EF = {
 						CreatedOnToolsVersion = 10.1;
 					};
@@ -219,6 +249,7 @@
 			targets = (
 				35C06702224336D100C060EF /* YCLog */,
 				35C0672722436D5000C060EF /* YCLogConsole */,
+				358533A2295ED57F000DEDDB /* idevicesyslog */,
 			);
 		};
 /* End PBXProject section */
@@ -236,16 +267,67 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		401598C95B731CBA1894EFC4 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-YCLog-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		784AAC9357053E2ED6A25345 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-YCLogConsole-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		3585339F295ED57F000DEDDB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		35C066FF224336D100C060EF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				35B1047B2248821B005A8C27 /* GCDAsyncSocket.m in Sources */,
 				35C0670B224336D100C060EF /* ViewController.m in Sources */,
 				35C06716224336D200C060EF /* main.m in Sources */,
-				35C067232243380E00C060EF /* YCLogManager.m in Sources */,
-				35C067B32244CDA700C060EF /* YCLogClient.m in Sources */,
 				35C06708224336D100C060EF /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -254,7 +336,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				35B1047C2248821B005A8C27 /* GCDAsyncSocket.m in Sources */,
 				35C0672B22436D5000C060EF /* main.m in Sources */,
 				35B1048E2248AB63005A8C27 /* YCLogServer.m in Sources */,
 			);
@@ -282,6 +363,38 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		358533A7295ED57F000DEDDB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 33P88K8G66;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_PREFIX_HEADER = /Users/wz/git/YCLog/idevicesyslog/include/config.h;
+				HEADER_SEARCH_PATHS = /Users/wz/git/YCLog/idevicesyslog/include;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		358533A8295ED57F000DEDDB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 33P88K8G66;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_PREFIX_HEADER = /Users/wz/git/YCLog/idevicesyslog/include/config.h;
+				HEADER_SEARCH_PATHS = /Users/wz/git/YCLog/idevicesyslog/include;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 		35C06717224336D200C060EF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -396,25 +509,29 @@
 		};
 		35C0671A224336D200C060EF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 040911EEB3472B67D562174A /* Pods-YCLog.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 6SH7X8AD4G;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 33P88K8G66;
 				INFOPLIST_FILE = YCLog/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCLog1;
+				PRODUCT_BUNDLE_IDENTIFIER = cc.onezen.YCLog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Wildcard Provisioning";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = AppDevWildcard;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		35C0671B224336D200C060EF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AE34723F4078825CE149FA8A /* Pods-YCLog.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Manual;
@@ -434,6 +551,7 @@
 		};
 		35C0672D22436D5000C060EF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1D37096ED106F91667B04AF9 /* Pods-YCLogConsole.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
@@ -447,6 +565,7 @@
 		};
 		35C0672E22436D5000C060EF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F166384E3992DB0E854FB703 /* Pods-YCLogConsole.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
@@ -461,6 +580,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		358533A9295ED57F000DEDDB /* Build configuration list for PBXNativeTarget "idevicesyslog" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				358533A7295ED57F000DEDDB /* Debug */,
+				358533A8295ED57F000DEDDB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		35C066FE224336D000C060EF /* Build configuration list for PBXProject "YCLog" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

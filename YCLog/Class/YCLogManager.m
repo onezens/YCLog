@@ -37,8 +37,7 @@
 #define COLOR_WHITE_DARK    "\e[2;37m"
 
 @interface YCLogManager()
-+ (void)_logLevel:(YCLogLevel)level flag:(YCLogFlag)flag fileName:(NSString *)fileName line:(NSUInteger)line allLog:(NSString *)allLog;
-
++ (void)logLevel:(YCLogLevel)level flag:(YCLogFlag)flag tag:(NSString *)tag format:(NSString *)format, ...;
 @end
 
 
@@ -50,7 +49,7 @@ void HandleException(NSException *exception) {
     // 异常名称
     NSString *name = [exception name];
     NSString *exceptionInfo = [NSString stringWithFormat:@"Exception reason：%@\nException name：%@\nException stack：%@",name, reason, stackArray];
-    [YCLogManager _logLevel:YCLogLevelError flag:YCLogFlagError fileName:nil line:0 allLog:exceptionInfo];
+    [YCLogManager logLevel:YCLogLevelError flag:YCLogFlagError tag:nil format:@"%@", exceptionInfo];
 }
 
 void InstallUncaughtExceptionHandler(void) {
@@ -59,6 +58,7 @@ void InstallUncaughtExceptionHandler(void) {
 
 @implementation YCLogManager
 YCLogClient *_logClient;
+YCLogConfig *_logConfig;
 
 + (void)initLogBase {
     static dispatch_once_t onceToken;
@@ -66,6 +66,11 @@ YCLogClient *_logClient;
         InstallUncaughtExceptionHandler();
         _logClient = [[YCLogClient alloc] init];
     });
+}
+
++ (void)setup:(YCLogConfig *)config
+{
+    _logConfig = config;
 }
 
 + (void)logLevel:(YCLogLevel)level flag:(YCLogFlag)flag file:(const char *)file line:(NSUInteger)line format:(NSString *)format, ... {
@@ -82,11 +87,26 @@ YCLogClient *_logClient;
     if (file != NULL) {
         fileName = [NSString stringWithCString:file encoding:NSUTF8StringEncoding].lastPathComponent;
     }
-    [self _logLevel:level flag:flag fileName:fileName line:line allLog:allLog];
+    [self _logLevel:level flag:flag tag:[NSString stringWithFormat:@"%@:%ld", fileName, line] allLog:allLog];
     [self _logConsoleLevel:level flag:flag fileName:fileName line:line allLog:allLog];
 }
 
-+ (void)_logConsoleLevel:(YCLogLevel)level flag:(YCLogFlag)flag fileName:(NSString *)fileName line:(NSUInteger)line allLog:(NSString *)allLog {
++ (void)logLevel:(YCLogLevel)level flag:(YCLogFlag)flag tag:(NSString *)tag format:(NSString *)format, ...
+{
+    [self initLogBase];
+    if (!format | !(level&flag)) return;
+
+    va_list args;
+    va_start(args, format);
+    NSString *allLog = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+    [self _logLevel:level flag:flag tag:tag allLog:allLog];
+    [self _logConsoleLevel:level flag:flag fileName:nil line:0 allLog:allLog];
+}
+
++ (void)_logConsoleLevel:(YCLogLevel)level flag:(YCLogFlag)flag fileName:(NSString *)fileName line:(NSUInteger)line allLog:(NSString *)allLog
+{
+    if (_logConfig.disableLogConsole) return;
     NSString *flagDesc = nil;
     switch (flag) {
         case YCLogFlagError:
@@ -108,7 +128,8 @@ YCLogClient *_logClient;
     NSLog(@"%@",log);
 }
 
-+ (void)_logLevel:(YCLogLevel)level flag:(YCLogFlag)flag fileName:(NSString *)fileName line:(NSUInteger)line allLog:(NSString *)allLog {
++ (void)_logLevel:(YCLogLevel)level flag:(YCLogFlag)flag tag:(NSString *)tag allLog:(NSString *)allLog
+{
     NSString *flagDesc = nil;
     switch (flag) {
         case YCLogFlagError:
@@ -132,17 +153,28 @@ YCLogClient *_logClient;
     NSString *dateStr = [df stringFromDate:[NSDate date]];
     NSString *deviceName = [UIDevice currentDevice].name;
     NSString *appName = [NSBundle mainBundle].infoDictionary[@"CFBundleName"];
-    
-    NSString *log = [NSString stringWithFormat:@"%s%@ %@%s %@ %@ [%@:%lu] :%s %@ \n",COLOR_CYAN,dateStr , deviceName, COLOR_CYAN, appName ,flagDesc, fileName, (unsigned long)line, COLOR_RESET, allLog];
-    
+    NSString *log = nil;
+    if (tag != nil) {
+        log = [NSString stringWithFormat:@"%s%@ %@%s %@ %@ [%@] :%s %@ \n",COLOR_CYAN, dateStr , deviceName, COLOR_CYAN, appName ,flagDesc, tag, COLOR_RESET, allLog];
+    }else {
+        log = [NSString stringWithFormat:@"%s%@ %@%s %@ %@ : %@ \n",COLOR_CYAN, dateStr , deviceName, COLOR_CYAN, appName ,flagDesc, allLog];
+    }
     [self logToServer:log];
 }
 
 
 
-+ (void)logToServer:(NSString *)log {
++ (void)logToServer:(NSString *)log
+{
     [_logClient sendMsg:[log dataUsingEncoding:NSUTF8StringEncoding]];
 }
+
+
+
+@end
+
+
+@implementation YCLogConfig
 
 
 

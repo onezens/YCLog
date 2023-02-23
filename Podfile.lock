@@ -1,0 +1,23 @@
+PODS:
+  - CocoaAsyncSocket (7.6.5)
+  - YCLog (0.0.1):
+    - CocoaAsyncSocket
+
+DEPENDENCIES:
+  - YCLog (from `.`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - CocoaAsyncSocket
+
+EXTERNAL SOURCES:
+  YCLog:
+    :path: "."
+
+SPEC CHECKSUMS:
+  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
+  YCLog: 94d1065610dd11408fe54040dd32628a9b546b23
+
+PODFILE CHECKSUM: 8349089b0d10b206cd8e5ca709d72f503f05545c
+
+COCOAPODS: 1.5.3

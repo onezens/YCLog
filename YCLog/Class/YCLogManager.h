@@ -40,13 +40,27 @@ typedef NS_ENUM(NSUInteger, YCLogLevel) {
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface YCLogConfig : NSObject
+
+/// 禁用日志输出到 Xcode 控制台
+@property (nonatomic, assign) BOOL disableLogConsole;
+
+@end
+
 @interface YCLogManager : NSObject
+
++ (void)setup:(YCLogConfig *)config;
 
 + (void)logLevel:(YCLogLevel)level
             flag:(YCLogFlag)flag
-            file:(const char *)file
+            file:(const char * __nullable)file
             line:(NSUInteger)line
           format:(NSString *)format, ... NS_FORMAT_FUNCTION(5,6);
+
++ (void)logLevel:(YCLogLevel)level
+            flag:(YCLogFlag)flag
+             tag:(NSString * __nullable)tag
+          format:(NSString *)format, ... NS_FORMAT_FUNCTION(4,5);
 
 
 @end

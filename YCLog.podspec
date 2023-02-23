@@ -8,13 +8,9 @@ Pod::Spec.new do |s|
   s.platform     = :ios, "8.0"
   s.source       = { :git => "https://github.com/onezens/YCLog.git", :tag => "#{s.version}" }
 
-  s.subspec 'Core' do |c|
-    c.source_files  = "YCLog/Class/*.{h,m}"
-    c.public_header_files = "YCLog/Class/*.h"
-    c.dependency 'CocoaAsyncSocket'
-  end
-
-  s.default_subspec = 'Core'
+  s.source_files  = "YCLog/Class/*.{h,m}"
+  s.public_header_files = "YCLog/Class/*.h"
+  s.dependency 'CocoaAsyncSocket'
   s.requires_arc = true
   s.frameworks = 'CFNetwork'
 

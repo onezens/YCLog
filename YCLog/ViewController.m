@@ -20,6 +20,29 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    [self initYCLog];
+}
+
+- (void)initYCLog
+{
+    YCLogConfig *config = [YCLogConfig new];
+    config.localLogPath = [self logPath];
+    [[YCLogManager shared] setup:config];
+}
+
+- (NSString *)logPath
+{
+    NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
+    path = [path stringByAppendingPathComponent:@"YCLog"];
+    NSDateFormatter *df = [[NSDateFormatter alloc] init];
+    [df setDateFormat:@"MM-dd"];
+    NSString *dateStr = [df stringFromDate:[NSDate date]];
+    NSString *logfile = [path stringByAppendingFormat:@"/%@.log",dateStr];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:true attributes:nil error:nil];
+        [[NSFileManager defaultManager] createFileAtPath:logfile contents:nil attributes:nil];
+    }
+    return path;
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {

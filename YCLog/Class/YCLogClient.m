@@ -6,18 +6,13 @@
 //  Copyright © 2019 wz. All rights reserved.
 //
 
-#define kConnectTimeOut 20
-
 #import "YCLogClient.h"
-#import "GCDAsyncSocket.h"
+#import <CocoaAsyncSocket/GCDAsyncSocket.h>
 
-typedef enum : NSUInteger {
-    YCLogClientDisConnect,
-    YCLogClientConnecting,
-    YCLogClientConnected,
-} YCLogClientStatus;
+#define YCLogEnableDebugLog 1
 
-@interface YCLogClient()<NSNetServiceBrowserDelegate , NSNetServiceDelegate, GCDAsyncSocketDelegate>
+@interface YCLogClient() <NSNetServiceBrowserDelegate , NSNetServiceDelegate, GCDAsyncSocketDelegate>
+
 @property (nonatomic, strong) NSNetServiceBrowser *bonjourClient;
 @property (nonatomic, strong) NSMutableArray <NSNetService *> *bonjourServers;
 @property (nonatomic, strong) GCDAsyncSocket *socket;
@@ -25,79 +20,76 @@ typedef enum : NSUInteger {
 @property (nonatomic, strong) NSMutableArray <NSString *> *logQueue;
 @property (nonatomic, strong) NSFileHandle *fh;
 @property (nonatomic, copy) NSString *logPath;
-@property (nonatomic, strong) dispatch_queue_t clientQueue;
 @property (nonatomic, assign) YCLogClientStatus status;
 @property (nonatomic, assign) NSInteger addressIdx;
 @property (nonatomic, strong) NSArray <NSString *> *filterKeys;
 @property (nonatomic, strong) NSArray <NSString *> *blockKeys;
+
 @end
 
 
 @implementation YCLogClient
 
-- (instancetype)init {
+- (instancetype)initWithConfig:(YCLogConfig *)config
+{
     if (self = [super init]) {
-        [self createClient];
+        _config = config;
+        _logPath = config.localLogPath;
+        self.socket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:config.queue];
+        [self initLogQueueWithThreadQueue:config.queue];
     }
     return self;
 }
 
-- (BOOL)createClient {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        [self initClient];
-    });
-    return true;
-}
-
-- (void)initClient
+- (void)startBonjourService
 {
-    self.clientQueue = dispatch_queue_create("YCLog.client", DISPATCH_QUEUE_SERIAL);
+    if (self.config.logHost.length > 0) {
+        return;
+    }
     self.bonjourClient = [[NSNetServiceBrowser alloc] init];
     [self.bonjourClient scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     [self.bonjourClient setDelegate:self];
     self.bonjourClient.includesPeerToPeer = true;
-    [self.bonjourClient searchForServicesOfType:@"_YCLogBonjour._tcp." inDomain:@"local."];
+    [self.bonjourClient searchForServicesOfType:self.config.logBonjourId inDomain:@"local."];
     self.bonjourServers = [NSMutableArray array];
-    self.socket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.clientQueue];
-    [self initLogQueue];
 }
 
-- (void)initLogQueue
+- (void)initLogQueueWithThreadQueue:(dispatch_queue_t)queue
 {
-    dispatch_async(self.clientQueue, ^{
+    dispatch_async(queue, ^{
         NSMutableArray *logQueue = [NSMutableArray array];
         NSDateFormatter *df = [[NSDateFormatter alloc] init];
         [df setDateFormat:@"YYYY-MM-dd HH:mm:ss.SSS"];
         NSString *dateStr = [df stringFromDate:[NSDate date]];
         NSString *initLog = @"";
         initLog = [initLog stringByAppendingFormat:@"\n\n**************************************************************************************\n"];
-        initLog = [initLog stringByAppendingFormat:@" YCLog v1.0.1 Init: %@\n", dateStr];
-        initLog = [initLog stringByAppendingFormat:@" Sandbox Log Path: %@\n", [self getLocalPhonePath]];
+        initLog = [initLog stringByAppendingFormat:@" %@ v1.0.1 Init: %@\n", kRestfulLoggerId, dateStr];
+        initLog = [initLog stringByAppendingFormat:@" Sandbox Log Path: %@\n", [self logPath]];
         initLog = [initLog stringByAppendingFormat:@"**************************************************************************************\n"];
         [logQueue addObject:initLog];
         NSData *data = [initLog dataUsingEncoding:NSUTF8StringEncoding];
-        [self logIphone:data];
+        [self logLocal:data];
         self.logQueue = logQueue;
+        if (self.config.supportBonjour) {
+            [self startBonjourService];
+        }
     });
 }
 
 
 - (void)sendMsg:(NSString *)msgContent;
 {
-    dispatch_async(self.clientQueue, ^{
-        NSData *msgData = [msgContent dataUsingEncoding:NSUTF8StringEncoding];
-        [self logIphone:msgData];
-        BOOL canLog = [self canLogMsg:msgContent];
-        if (self.status != YCLogClientConnected) {
-            [self connectToServer];
-            if(canLog) [self.logQueue addObject:msgContent];
-            return;
-        }
-        if(canLog) {
-            [self.socket writeData:msgData withTimeout:kConnectTimeOut tag:1001];
-        }
-    });
+    NSData *msgData = [msgContent dataUsingEncoding:NSUTF8StringEncoding];
+    [self logLocal:msgData];
+    BOOL canLog = [self canLogMsg:msgContent];
+    if (self.status != YCLogClientStatusConnected) {
+        [self connectToServer];
+        if(canLog) [self.logQueue addObject:msgContent];
+        return;
+    }
+    if(canLog) {
+        [self.socket writeData:msgData withTimeout:self.config.timeout tag:1001];
+    }
 }
 
 - (BOOL)canLogMsg:(NSString *)msg
@@ -140,16 +132,34 @@ typedef enum : NSUInteger {
 
 - (void)connectToServer
 {
-    if (self.addresses.count==0) {
-        return;
-    }
-    if (self.status != YCLogClientDisConnect) return;
-    self.status = YCLogClientConnecting;
     NSError *err = nil;
-    // 链接超时后，换一个新的地址重连
-    BOOL isConnect = [_socket connectToAddress:self.addresses[self.addressIdx] withTimeout:2 error:&err];
-    if (!isConnect || err != nil) {
-        NSLog(@"[connectToServer] error: %@", err);
+    if (self.config.logHost.length > 0) {
+        if (self.status != YCLogClientStatusDisConnecting) {
+            return;
+        }
+        self.status = YCLogClientStatusConnecting;
+        BOOL isConnect = [_socket connectToHost:self.config.logHost onPort:46666 error:&err];
+        if (!isConnect || err != nil) {
+#if YCLogEnableDebugLog
+            printf("[YCLogConsole] [connectToServer1] error: %s\n", err.description.UTF8String);
+#endif
+        }
+    }else {
+        if (self.addresses.count == 0) {
+            return;
+        }
+        if (self.status != YCLogClientStatusDisConnecting) {
+            return;
+        }
+        self.status = YCLogClientStatusConnecting;
+        // 链接超时后，换一个新的地址重连
+        BOOL isConnect = [_socket connectToAddress:self.addresses[self.addressIdx] withTimeout:2 error:&err];
+#if YCLogEnableDebugLog
+        printf("[YCLogConsole]  connectToAddress \n");
+        if (!isConnect || err != nil) {
+            printf("[YCLogConsole] [connectToServer] error: %s\n", err.description.UTF8String);
+        }
+#endif
     }
 }
 
@@ -170,11 +180,13 @@ typedef enum : NSUInteger {
 }
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)browser didFindService:(NSNetService *)service moreComing:(BOOL)moreComing {
-    if (service) {
-        [self.bonjourServers addObject:service];
-        [service setDelegate:self];
-        [service resolveWithTimeout:20];
-    }
+    dispatch_async(self.config.queue, ^{
+        if (service) {
+            [self.bonjourServers addObject:service];
+            [service setDelegate:self];
+            [service resolveWithTimeout:20];
+        }
+    });
 }
 
 
@@ -186,23 +198,38 @@ typedef enum : NSUInteger {
 
 
 - (void)netServiceDidResolveAddress:(NSNetService *)sender {
-    NSLog(@"name: %@  host: %@ domain: %@ type: %@ port: %zd", sender.name, sender.hostName, sender.domain, sender.type, sender.port);
-//    [sender.addresses enumerateObjectsUsingBlock:^(NSData * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-//        NSLog(@"address: %@", [[NSString alloc] initWithData:obj encoding:NSUTF8StringEncoding]);
-//    }];
-    self.addresses = sender.addresses.copy;
-    [self connectToServer];
-    //    [self.bonjourClient removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+    dispatch_async(self.config.queue, ^{
+#if YCLogEnableDebugLog
+        printf("[YCLogConsole]  DidResolveAddress name: %s  host: %s domain: %s type: %s port: %zd \n", sender.name.UTF8String, sender.hostName.UTF8String, sender.domain.UTF8String, sender.type.UTF8String, sender.port);
+#endif
+    //    [sender.addresses enumerateObjectsUsingBlock:^(NSData * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    //        NSLog(@"address: %@", [[NSString alloc] initWithData:obj encoding:NSUTF8StringEncoding]);
+    //    }];
+        self.addressIdx = 0;
+        self.addresses = sender.addresses.copy;
+        [self connectToServer];
+        //    [self.bonjourClient removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+    });
 }
 
 
-- (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary<NSString *, NSNumber *> *)errorDict {
+- (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary<NSString *, NSNumber *> *)errorDict
+{
+#if YCLogEnableDebugLog
+    printf("[YCLogConsole]  didNotResolve %s \n", errorDict.description.UTF8String);
+#endif
 }
 
 - (void)netServiceDidStop:(NSNetService *)sender {
-    if (sender) {
-        [self.bonjourServers removeObject:sender];
-    }
+    
+    dispatch_async(self.config.queue, ^{
+        if (sender) {
+            [self.bonjourServers removeObject:sender];
+        }
+#if YCLogEnableDebugLog
+        printf("[YCLogConsole]  netServiceDidStop \n");
+#endif
+    });
 }
 
 
@@ -210,27 +237,34 @@ typedef enum : NSUInteger {
 
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
 {
-    [sock readDataWithTimeout:kConnectTimeOut tag:10];
-    self.status = YCLogClientConnected;
+#if YCLogEnableDebugLog
+    printf("[YCLogConsole]  didConnectToHost: %s port: %d \n", host.UTF8String, port);
+#endif
+    [sock readDataWithTimeout:self.config.timeout tag:10];
+    self.status = YCLogClientStatusConnected;
 }
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
 {
     //TODO:retry connect
-    self.status = YCLogClientDisConnect;
+    self.status = YCLogClientStatusDisConnecting;
     self.addressIdx += 1;
     if (self.addressIdx >= self.addresses.count) {
         self.addressIdx = 0;
     }
     //TODO: handler max retry time
-    if (err.code == 3) { //Error Domain=GCDAsyncSocketErrorDomain Code=3 "Attempt to connect to host timed out" UserInfo={NSLocalizedDescription=Attempt to connect to host timed out}
+    if (err.code == 3) {
+        // Error Domain=GCDAsyncSocketErrorDomain Code=3 "Attempt to connect to host timed out" UserInfo={NSLocalizedDescription=Attempt to connect to host timed out}
         [self connectToServer];
     }
+#if YCLogEnableDebugLog
+    printf("[YCLogConsole]  Disconnect: %s \n", err.description.UTF8String);
+#endif
+    self.addresses = nil;
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
-    NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     [self handlerSocketMsg:data];
     [sock readDataWithTimeout:-1 tag:tag];
 }
@@ -248,7 +282,6 @@ typedef enum : NSUInteger {
             }
         }
     }
-    NSLog(@"YCLog filterKey: %@ blockKey: %@", self.filterKeys, self.blockKeys);
     // send log queue msg to log server
     if (self.logQueue.count > 0) {
         NSArray *pendingLogs = self.logQueue.copy;
@@ -261,28 +294,11 @@ typedef enum : NSUInteger {
 
 #pragma mark - log file
 
-- (NSString *)getLocalPhonePath
+- (void)logLocal:(NSData *)log
 {
-    NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
-    path = [path stringByAppendingPathComponent:@"YCLog"];
-    NSDateFormatter *df = [[NSDateFormatter alloc] init];
-    [df setDateFormat:@"MM-dd"];
-    NSString *dateStr = [df stringFromDate:[NSDate date]];
-    NSString *logfile = [path stringByAppendingFormat:@"/%@.log",dateStr];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
-        [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:true attributes:nil error:nil];
-        [[NSFileManager defaultManager] createFileAtPath:logfile contents:nil attributes:nil];
+    if (_logPath) {
+        [self logInfoToFile:log path:_logPath];
     }
-    return logfile;
-}
-
-- (void)logIphone:(NSData *)log
-{
-    if (!_logPath) {
-        _logPath = [self getLocalPhonePath];
-    }
-    [self logInfoToFile:log path:_logPath];
-    
 }
 
 - (void)logInfoToFile:(NSData *)log path:(NSString *)path
@@ -298,3 +314,5 @@ typedef enum : NSUInteger {
 
 
 @end
+
+

@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "YCLogConfig.h"
 
 typedef NS_OPTIONS(NSUInteger, YCLogFlag) {
     /**0...0001*/
@@ -40,16 +41,15 @@ typedef NS_ENUM(NSUInteger, YCLogLevel) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface YCLogConfig : NSObject
-
-/// 禁用日志输出到 Xcode 控制台
-@property (nonatomic, assign) BOOL disableLogConsole;
-
-@end
 
 @interface YCLogManager : NSObject
 
-+ (void)setup:(YCLogConfig *)config;
++ (instancetype)shared;
+
+/// 设置日志配置
+- (void)setup:(YCLogConfig *)config;
+/// 更新日志服务
+- (void)refreshLogHost:(NSString *)logHost;
 
 + (void)logLevel:(YCLogLevel)level
             flag:(YCLogFlag)flag

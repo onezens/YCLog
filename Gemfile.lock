@@ -1,5 +1,5 @@
 GEM
-  remote: https://rubygems.org/
+  remote: https://gems.ruby-china.com/
   specs:
     CFPropertyList (3.0.6)
       rexml
@@ -8,7 +8,7 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    addressable (2.8.1)
+    addressable (2.8.5)
       public_suffix (>= 2.0.2, < 6.0)
     atomos (0.1.3)
     babosa (1.0.4)
@@ -50,14 +50,14 @@ GEM
     colored2 (3.1.2)
     commander-fastlane (4.4.6)
       highline (~> 1.7.2)
-    concurrent-ruby (1.2.0)
+    concurrent-ruby (1.2.2)
     declarative (0.0.20)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     dotenv (2.8.1)
     emoji_regex (0.1.1)
     escape (0.0.4)
-    excon (0.99.0)
+    excon (0.104.0)
     faraday (0.17.6)
       multipart-post (>= 1.2, < 3)
     faraday-cookie_jar (0.0.7)
@@ -65,7 +65,7 @@ GEM
       http-cookie (~> 1.0.0)
     faraday_middleware (0.14.0)
       faraday (>= 0.7.4, < 1.0)
-    fastimage (2.2.6)
+    fastimage (2.2.7)
     fastlane (2.98.0)
       CFPropertyList (>= 2.3, < 4.0.0)
       addressable (>= 2.3, < 3.0.0)
@@ -126,13 +126,13 @@ GEM
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     json (2.6.3)
-    jwt (2.7.0)
+    jwt (2.7.1)
     memoist (0.16.2)
-    mime-types (3.4.1)
+    mime-types (3.5.1)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2023.0218.1)
+    mime-types-data (3.2023.1003)
     mini_magick (4.5.1)
-    minitest (5.17.0)
+    minitest (5.20.0)
     molinillo (0.6.6)
     multi_json (1.15.0)
     multi_xml (0.6.0)
@@ -149,12 +149,12 @@ GEM
       trailblazer-option (>= 0.1.1, < 0.2.0)
       uber (< 0.2.0)
     retriable (3.1.2)
-    rexml (3.2.5)
+    rexml (3.2.6)
     rouge (2.0.7)
     ruby-macho (1.4.0)
     rubyzip (1.3.0)
     security (0.1.3)
-    signet (0.17.0)
+    signet (0.18.0)
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
       jwt (>= 1.5, < 3.0)
@@ -180,7 +180,7 @@ GEM
     unf_ext (0.0.8.2)
     unicode-display_width (1.8.0)
     word_wrap (1.0.0)
-    xcodeproj (1.22.0)
+    xcodeproj (1.23.0)
       CFPropertyList (>= 2.3.3, < 4.0)
       atomos (~> 0.1.3)
       claide (>= 1.0.2, < 2.0)
@@ -200,4 +200,4 @@ DEPENDENCIES
   fastlane (~> 2.98.0)!
 
 BUNDLED WITH
-   1.17.3
+   1.17.2

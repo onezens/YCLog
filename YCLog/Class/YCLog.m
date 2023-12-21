@@ -150,7 +150,12 @@ static char * const COLOR_WHITE_DARK        =   "\e[2;37m";
         NSDateFormatter *df = [[NSDateFormatter alloc] init];
         [df setDateFormat:@"YYYY-MM-dd HH:mm:ss.SSS"];
         NSString *dateStr = [df stringFromDate:[NSDate date]];
-        NSString *deviceName = [UIDevice currentDevice].name;
+        NSString *deviceName = @"Apple";
+#if TARGET_OS_OSX
+        deviceName = [[NSHost currentHost] localizedName];
+#elif TARGET_OS_IOS
+        deviceName =  [UIDevice currentDevice].name;
+#endif
         NSString *appName = [NSBundle mainBundle].infoDictionary[@"CFBundleName"];
         NSString *log = nil;
         if (tag != nil) {

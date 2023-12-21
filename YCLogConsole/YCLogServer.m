@@ -8,6 +8,8 @@
 
 #import "YCLogServer.h"
 #import "GCDAsyncSocket.h"
+#include <ifaddrs.h>
+#include <arpa/inet.h>
 
 #define YCLogServerEnableDebugLog 1
 
@@ -21,15 +23,16 @@ static NSInteger kYCLogServerPort = 46666;
 
 @implementation YCLogServer
 
+
+
 - (void)createServer {
     _asyncSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
-    _ipHostSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
     NSError *err = nil;
-    if ([_asyncSocket acceptOnPort:0 error:&err]) {
+    if (self.type != YCLogServerTypeIP && [_asyncSocket acceptOnPort:0 error:&err]) {
         _clients = [NSMutableArray array];
         _bonjourServer = [[NSNetService alloc] initWithDomain:@"local."
-                                                         type:@"_YCLog._tcp."
-                                                         name:@"YCLogBonjour"
+                                                         type:[self bonjourType]
+                                                         name:[self bonjourName]
                                                          port:_asyncSocket.localPort];
         
         _bonjourServer.delegate = self;
@@ -37,7 +40,54 @@ static NSInteger kYCLogServerPort = 46666;
         [_bonjourServer publish];
     }
     
-    if ([_ipHostSocket acceptOnPort:kYCLogServerPort error:&err]) { }
+    if (self.type != YCLogServerTypeBonjour) {
+        _ipHostSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
+        [_ipHostSocket acceptOnPort:kYCLogServerPort error:&err];
+    }
+    [self serverIP];
+}
+
+- (NSString *)bonjourType
+{
+    return @"_MSVRestfulLog._tcp.";
+}
+
+- (NSString *)bonjourName
+{
+    return _deviceId.length ? _deviceId : @"MSVRestfulLog";
+}
+
+- (void)serverIP
+{
+    struct ifaddrs *interfaces = NULL;
+    struct ifaddrs *temp_addr = NULL;
+    NSMutableArray *ipAddresses = [NSMutableArray array];
+    
+    // 获取网络接口信息
+    if (getifaddrs(&interfaces) == 0) {
+        // 遍历接口列表
+        temp_addr = interfaces;
+        while (temp_addr != NULL) {
+            sa_family_t sa_type = temp_addr->ifa_addr->sa_family;
+            if (sa_type == AF_INET || sa_type == AF_INET6) {
+                // 获取 IP 地址
+                NSString *ipAddress = [NSString stringWithUTF8String:inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr)];
+                NSString *name = [NSString stringWithUTF8String:(const char *)(struct sockaddr_in *)temp_addr->ifa_name];
+                if (![ipAddress isEqualToString:@"0.0.0.0"] && ![ipAddress isEqualToString:@"127.0.0.1"] && [name hasPrefix:@"en"]) {
+                    [ipAddresses addObject:[NSString stringWithFormat:@"%@: %@", name, ipAddress]];
+                }
+            }
+            temp_addr = temp_addr->ifa_next;
+        }
+    }
+    
+    // 释放资源
+    freeifaddrs(interfaces);
+    
+    // 打印 IP 地址
+    for (NSString *ipAddress in ipAddresses) {
+        printf("%s \n", ipAddress.UTF8String);
+    }
 }
 
 - (void)logLevel:(NSInteger)level flag:(NSInteger)flag function:(const char *)function line:(NSUInteger)line detail:(NSString *)detail {
@@ -55,11 +105,11 @@ static NSInteger kYCLogServerPort = 46666;
 }
 
 - (void)netServiceDidResolveAddress:(NSNetService *)sender {
-
+    
 }
 
 - (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary<NSString *, NSNumber *> *)errorDict {
-
+    
 }
 
 - (void)netServiceDidStop:(NSNetService *)sender {
@@ -71,6 +121,7 @@ static NSInteger kYCLogServerPort = 46666;
 - (void)netServiceDidPublish:(NSNetService *)ns
 {
     printf("[YCLogConsole] YCLogServer publish port:%zd \nfilterKeys: %s blockKeys: %s\n", kYCLogServerPort, [self.filterKeys componentsJoinedByString:@"、"].UTF8String, [self.blockKeys componentsJoinedByString:@"、"].UTF8String);
+    printf("bonjour type: %s name: %s srvType: %ld\n", [self bonjourType].UTF8String, [self bonjourName].UTF8String, self.type);
 }
 
 #pragma mark - data

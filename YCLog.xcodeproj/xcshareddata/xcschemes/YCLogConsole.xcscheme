@@ -52,7 +52,11 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-f success debug&amp;ddd  -b info"
+            argument = "-f success debug&amp;ddd  -b info -d 730e75e74c354d08b010bee88d390b5fa169673436192902752"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-d 730e75e74c354d08b010bee88d390b5fa169673436192902752"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

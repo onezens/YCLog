@@ -2,7 +2,7 @@
 //  YCLogConfig.h
 //  YCLog
 //
-//  Created by wz on 2023/10/17.
+//  Created by wz on 2023/10/16.
 //
 
 
@@ -24,6 +24,8 @@ extern NSString * const kRestfulLoggerId;
 @property (nonatomic, assign) BOOL disableLogConsole;
 /// 存储路径
 @property (nonatomic, copy) NSString *localLogPath;
+/// 设备标识
+@property (nonatomic, copy) NSString *deviceId;
 /// 日志标识
 @property (nonatomic, copy, readonly) NSString *logBonjourId;
 ///是否支持组播服务，局域网自动连接服务

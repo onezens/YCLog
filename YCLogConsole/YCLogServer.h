@@ -10,9 +10,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSUInteger, YCLogServerType) {
+    YCLogServerTypeDefault,
+    YCLogServerTypeIP,
+    YCLogServerTypeBonjour
+};
+
 @interface YCLogServer : NSObject
 @property (nonatomic, strong) NSArray *filterKeys;
 @property (nonatomic, strong) NSArray *blockKeys;
+@property (nonatomic, copy) NSString *deviceId;
+@property (nonatomic, assign) YCLogServerType type;
+
+
 - (void)createServer;
 @end
 

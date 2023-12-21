@@ -1,15 +1,13 @@
 //
-//  YCLogManager.m
+//  YCLog.m
 //  YCLog
 //
-//  Created by wz on 2019/3/21.
-//  Copyright © 2019 wz. All rights reserved.
+//  Created by wz on 2023/9/5.
 //
 
-#import "YCLogManager.h"
-#import <UIKit/UIKit.h>
+
+#import "YCLog.h"
 #import "YCLogClient.h"
-#import <CocoaAsyncSocket/GCDAsyncSocket.h>
 
 static char * const COLOR_RESET             =   "\e[m";
 static char * const COLOR_NORMAL            =   "\e[0m";
@@ -37,36 +35,20 @@ static char * const COLOR_CYAN_DARK         =   "\e[2;36m";
 static char * const COLOR_WHITE             =   "\e[0;37m";
 static char * const COLOR_WHITE_DARK        =   "\e[2;37m";
 
-@interface YCLogManager()
+@interface YCLog()
 
 @property (nonatomic, strong) YCLogClient *logClient;
 
 @end
 
-
-void HandleException(NSException *exception) {
-    // 异常的堆栈信息
-    NSArray *stackArray = [exception callStackSymbols];
-    // 出现异常的原因
-    NSString *reason = [exception reason];
-    // 异常名称
-    NSString *name = [exception name];
-    NSString *exceptionInfo = [NSString stringWithFormat:@"Exception reason：%@\nException name：%@\nException stack：%@",name, reason, stackArray];
-    [YCLogManager logLevel:YCLogLevelError flag:YCLogFlagError tag:nil format:@"%@", exceptionInfo];
-}
-
-void InstallUncaughtExceptionHandler(void) {
-    NSSetUncaughtExceptionHandler(&HandleException);
-}
-
-@implementation YCLogManager
+@implementation YCLog
 
 + (instancetype)shared
 {
     static dispatch_once_t onceToken;
-    static YCLogManager *_restfulLog;
+    static YCLog *_restfulLog;
     dispatch_once(&onceToken, ^{
-        _restfulLog = [YCLogManager new];
+        _restfulLog = [YCLog new];
         [_restfulLog initPrivate];
     });
     return _restfulLog;
@@ -74,7 +56,7 @@ void InstallUncaughtExceptionHandler(void) {
 
 - (void)initPrivate
 {
-    InstallUncaughtExceptionHandler();
+    
 }
 
 - (void)setup:(YCLogConfig *)config
@@ -84,9 +66,12 @@ void InstallUncaughtExceptionHandler(void) {
 
 - (void)refreshLogHost:(NSString *)logHost
 {
+    if (!self.logClient) {
+        return;
+    }
     if (![self.logClient.config.logHost isEqualToString:logHost]) {
         dispatch_async(self.logClient.config.queue, ^{
-            [[YCLogManager shared].logClient connectToServer];
+            [[YCLog shared].logClient connectToServer];
         });
         self.logClient.config.logHost = logHost;
     }
@@ -94,7 +79,7 @@ void InstallUncaughtExceptionHandler(void) {
 
 + (BOOL)isDisable
 {
-    return ![YCLogConfig supportBonjour] && [YCLogManager shared].logClient.config.logHost.length == 0;
+    return ![YCLogConfig supportBonjour] && [YCLog shared].logClient.config.logHost.length == 0;
 }
 
 + (void)logUnsupportTips
@@ -183,3 +168,4 @@ void InstallUncaughtExceptionHandler(void) {
 }
 
 @end
+

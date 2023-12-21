@@ -2,12 +2,11 @@
 //  YCLogClient.h
 //  YCLog
 //
-//  Created by wz on 2019/3/22.
-//  Copyright © 2019 wz. All rights reserved.
+//  Created by wz on 2023/10/16.
 //
 
-#import <Foundation/Foundation.h>
-#import "YCLogConfig.h"
+
+#import <YCLog/YCLogConfig.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,3 +28,4 @@ typedef enum : NSUInteger {
 - (instancetype)initWithConfig:(YCLogConfig *)config;
 @end
 NS_ASSUME_NONNULL_END
+

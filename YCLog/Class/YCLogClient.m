@@ -2,15 +2,12 @@
 //  YCLogClient.m
 //  YCLog
 //
-//  Created by wz on 2019/3/22.
-//  Copyright © 2019 wz. All rights reserved.
+//  Created by wz on 2023/10/16.
 //
 
 #import "YCLogClient.h"
 #import <CocoaAsyncSocket/GCDAsyncSocket.h>
-
-#define YCLogEnableDebugLog 1
-
+#define YCLogEnableDebugLog 0
 @interface YCLogClient() <NSNetServiceBrowserDelegate , NSNetServiceDelegate, GCDAsyncSocketDelegate>
 
 @property (nonatomic, strong) NSNetServiceBrowser *bonjourClient;
@@ -18,7 +15,7 @@
 @property (nonatomic, strong) GCDAsyncSocket *socket;
 @property (nonatomic, strong) NSArray <NSData *> *addresses;
 @property (nonatomic, strong) NSMutableArray <NSString *> *logQueue;
-@property (nonatomic, strong) NSFileHandle *fh;
+@property (nonatomic, strong) NSFileHandle *fileHandle;
 @property (nonatomic, copy) NSString *logPath;
 @property (nonatomic, assign) YCLogClientStatus status;
 @property (nonatomic, assign) NSInteger addressIdx;
@@ -63,7 +60,7 @@
         NSString *dateStr = [df stringFromDate:[NSDate date]];
         NSString *initLog = @"";
         initLog = [initLog stringByAppendingFormat:@"\n\n**************************************************************************************\n"];
-        initLog = [initLog stringByAppendingFormat:@" %@ v1.0.1 Init: %@\n", kRestfulLoggerId, dateStr];
+        initLog = [initLog stringByAppendingFormat:@" %@ v1.0.2 Init: %@\n", kRestfulLoggerId, dateStr];
         initLog = [initLog stringByAppendingFormat:@" Sandbox Log Path: %@\n", [self logPath]];
         initLog = [initLog stringByAppendingFormat:@"**************************************************************************************\n"];
         [logQueue addObject:initLog];
@@ -155,7 +152,7 @@
         // 链接超时后，换一个新的地址重连
         BOOL isConnect = [_socket connectToAddress:self.addresses[self.addressIdx] withTimeout:2 error:&err];
 #if YCLogEnableDebugLog
-        printf("[YCLogConsole]  connectToAddress \n");
+        printf("[YCLogConsole] connectToAddress \n");
         if (!isConnect || err != nil) {
             printf("[YCLogConsole] [connectToServer] error: %s\n", err.description.UTF8String);
         }
@@ -181,7 +178,7 @@
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)browser didFindService:(NSNetService *)service moreComing:(BOOL)moreComing {
     dispatch_async(self.config.queue, ^{
-        if (service) {
+        if (service && [service.name isEqualToString:self.config.deviceId]) {
             [self.bonjourServers addObject:service];
             [service setDelegate:self];
             [service resolveWithTimeout:20];
@@ -304,10 +301,11 @@
 - (void)logInfoToFile:(NSData *)log path:(NSString *)path
 {
     NSAssert(![NSThread isMainThread], @"log to file can not main thread!");
-    NSFileHandle *fh = self.fh;
+    NSFileHandle *fh = self.fileHandle;
     if (!fh) {
         fh = [NSFileHandle fileHandleForWritingAtPath:path];
         [fh seekToEndOfFile];
+        _fileHandle = fh;
     }
     [fh writeData:log];
 }

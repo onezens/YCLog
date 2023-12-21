@@ -27,7 +27,7 @@
 {
     YCLogConfig *config = [YCLogConfig new];
     config.localLogPath = [self logPath];
-    [[YCLogManager shared] setup:config];
+    [[YCLog shared] setup:config];
 }
 
 - (NSString *)logPath
@@ -40,6 +40,8 @@
     NSString *logfile = [path stringByAppendingFormat:@"/%@.log",dateStr];
     if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
         [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:true attributes:nil error:nil];
+    }
+    if (![[NSFileManager defaultManager] fileExistsAtPath:logfile]) {
         [[NSFileManager defaultManager] createFileAtPath:logfile contents:nil attributes:nil];
     }
     return path;

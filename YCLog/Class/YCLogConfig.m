@@ -2,8 +2,7 @@
 //  YCLogConfig.m
 //  YCLog
 //
-//  Created by wz on 2023/10/17.
-//
+//  Created by wz on 2023/10/16.
 
 #import "YCLogConfig.h"
 NSString * const kRestfulLoggerId = @"YCLog";
@@ -28,13 +27,21 @@ NSString * const kRestfulLoggerId = @"YCLog";
 
 + (BOOL)supportBonjour
 {
-    if (@available(iOS 14.0, *)) {
-        NSDictionary *dict = [[NSBundle mainBundle] infoDictionary];
-        NSArray *services = dict[@"NSBonjourServices"];
-        NSString *localNetworkUsageDesc = dict[@"NSLocalNetworkUsageDescription"];
-        return [services containsObject:[self logId]] && localNetworkUsageDesc.length > 0;
-    }
-    return true;
+    static dispatch_once_t onceToken;
+    static BOOL _supportBonjour;
+    dispatch_once(&onceToken, ^{
+        if (@available(iOS 14.0, *)) {
+            NSDictionary *dict = [[NSBundle mainBundle] infoDictionary];
+            NSArray *services = dict[@"NSBonjourServices"];
+            NSString *localNetworkUsageDesc = dict[@"NSLocalNetworkUsageDescription"];
+            _supportBonjour = [services containsObject:[self logId]] && localNetworkUsageDesc.length > 0;
+        } else {
+            _supportBonjour = true;
+        }
+    });
+    return _supportBonjour;
 }
 
 @end
+
+

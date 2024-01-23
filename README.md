@@ -9,10 +9,10 @@ Compile YCLogConsole, then put it in the /usr/local/bin/ directory of your compu
 $ YCLogConsole
 
 # show filter log
-$ YCLogConsole -i debug info
+$ YCLogConsole -f debug info
 
 # show filter debug & info log
-$ YCLogConsole -i 'debug&info'
+$ YCLogConsole -f 'debug&info'
 
 # block log
 $ YCLogConsole -b debug info

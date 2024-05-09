@@ -20,15 +20,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		358533A1295ED57F000DEDDB /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
 		35C0672622436D5000C060EF /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -44,7 +35,6 @@
 		02D870A08692C0FF97EC4E2F /* libPods-YCLogConsole.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-YCLogConsole.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		040911EEB3472B67D562174A /* Pods-YCLog.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YCLog.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YCLog/Pods-YCLog.debug.xcconfig"; sourceTree = "<group>"; };
 		1D37096ED106F91667B04AF9 /* Pods-YCLogConsole.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YCLogConsole.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YCLogConsole/Pods-YCLogConsole.debug.xcconfig"; sourceTree = "<group>"; };
-		358533A3295ED57F000DEDDB /* idevicesyslog */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = idevicesyslog; sourceTree = BUILT_PRODUCTS_DIR; };
 		35B1048C2248AB63005A8C27 /* YCLogServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YCLogServer.h; sourceTree = "<group>"; };
 		35B1048D2248AB63005A8C27 /* YCLogServer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YCLogServer.m; sourceTree = "<group>"; };
 		35C06703224336D100C060EF /* YCLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YCLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -65,13 +55,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		358533A0295ED57F000DEDDB /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		35C06700224336D100C060EF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -116,7 +99,6 @@
 			children = (
 				35C06703224336D100C060EF /* YCLog.app */,
 				35C0672822436D5000C060EF /* YCLogConsole */,
-				358533A3295ED57F000DEDDB /* idevicesyslog */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -161,23 +143,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		358533A2295ED57F000DEDDB /* idevicesyslog */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 358533A9295ED57F000DEDDB /* Build configuration list for PBXNativeTarget "idevicesyslog" */;
-			buildPhases = (
-				3585339F295ED57F000DEDDB /* Sources */,
-				358533A0295ED57F000DEDDB /* Frameworks */,
-				358533A1295ED57F000DEDDB /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = idevicesyslog;
-			productName = idevicesyslog;
-			productReference = 358533A3295ED57F000DEDDB /* idevicesyslog */;
-			productType = "com.apple.product-type.tool";
-		};
 		35C06702224336D100C060EF /* YCLog */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 35C06719224336D200C060EF /* Build configuration list for PBXNativeTarget "YCLog" */;
@@ -223,9 +188,6 @@
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = wz;
 				TargetAttributes = {
-					358533A2295ED57F000DEDDB = {
-						CreatedOnToolsVersion = 14.1;
-					};
 					35C06702224336D100C060EF = {
 						CreatedOnToolsVersion = 10.1;
 					};
@@ -249,7 +211,6 @@
 			targets = (
 				35C06702224336D100C060EF /* YCLog */,
 				35C0672722436D5000C060EF /* YCLogConsole */,
-				358533A2295ED57F000DEDDB /* idevicesyslog */,
 			);
 		};
 /* End PBXProject section */
@@ -315,13 +276,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		3585339F295ED57F000DEDDB /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		35C066FF224336D100C060EF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -363,38 +317,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		358533A7295ED57F000DEDDB /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 33P88K8G66;
-				ENABLE_HARDENED_RUNTIME = YES;
-				GCC_PREFIX_HEADER = /Users/wz/git/YCLog/idevicesyslog/include/config.h;
-				HEADER_SEARCH_PATHS = /Users/wz/git/YCLog/idevicesyslog/include;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-			};
-			name = Debug;
-		};
-		358533A8295ED57F000DEDDB /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 33P88K8G66;
-				ENABLE_HARDENED_RUNTIME = YES;
-				GCC_PREFIX_HEADER = /Users/wz/git/YCLog/idevicesyslog/include/config.h;
-				HEADER_SEARCH_PATHS = /Users/wz/git/YCLog/idevicesyslog/include;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-			};
-			name = Release;
-		};
 		35C06717224336D200C060EF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -580,15 +502,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		358533A9295ED57F000DEDDB /* Build configuration list for PBXNativeTarget "idevicesyslog" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				358533A7295ED57F000DEDDB /* Debug */,
-				358533A8295ED57F000DEDDB /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		35C066FE224336D000C060EF /* Build configuration list for PBXProject "YCLog" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

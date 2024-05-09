@@ -2,20 +2,26 @@
 iOS simply terminal color log
 
 ## MacOS Install
-Compile YCLogConsole, then put it in the /usr/local/bin/ directory of your computer, and finally execute YCLogConsole in the terminal
+Compile the YCLogConsole binary file, then put it in /usr/local/bin/ or other $PATH directory of your computer, and finally execute YCLogConsole in the terminal
 
 ```
 # show all log
 $ YCLogConsole
 
-# show filter log
-$ YCLogConsole -i debug info
+# Only show logs containing debug or info keywords
+$ YCLogConsole -f debug info
 
-# show filter debug & info log
-$ YCLogConsole -i 'debug&info'
+# Only show logs containing debug & info keywords
+$ YCLogConsole -f 'debug&info'
 
-# block log
+# Block logs containing the debug or info keywords
 $ YCLogConsole -b debug info
+
+# Connection log based on device ID
+$ YCLogConsole -d 000081201006352934AC0201
+
+# Custom device connection identifier
+$ YCLogConsole -n DDLogSrv
 ```
 
 ## Output log

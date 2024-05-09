@@ -14,6 +14,7 @@
 #define YCLogServerEnableDebugLog 1
 
 static NSInteger kYCLogServerPort = 46666;
+static NSString * kYCLogBonjourType = @"YCLogConsole";
 @interface YCLogServer()<NSNetServiceDelegate, GCDAsyncSocketDelegate>
 @property (nonatomic, strong) NSMutableArray *clients;
 @property (nonatomic, strong) NSNetService *bonjourServer;
@@ -23,9 +24,17 @@ static NSInteger kYCLogServerPort = 46666;
 
 @implementation YCLogServer
 
-
+- (instancetype)init {
+    if (self = [super init]) {
+        _bonjourName = kYCLogBonjourType;
+    }
+    return self;
+}
 
 - (void)createServer {
+    if (self.deviceId.length) {
+        self.bonjourName = self.deviceId;
+    }
     _asyncSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
     NSError *err = nil;
     if (self.type != YCLogServerTypeIP && [_asyncSocket acceptOnPort:0 error:&err]) {
@@ -49,12 +58,7 @@ static NSInteger kYCLogServerPort = 46666;
 
 - (NSString *)bonjourType
 {
-    return @"_MSVRestfulLog._tcp.";
-}
-
-- (NSString *)bonjourName
-{
-    return _deviceId.length ? _deviceId : @"MSVRestfulLog";
+    return [NSString stringWithFormat:@"_%@._tcp.", kYCLogBonjourType];
 }
 
 - (void)serverIP
@@ -120,8 +124,8 @@ static NSInteger kYCLogServerPort = 46666;
 
 - (void)netServiceDidPublish:(NSNetService *)ns
 {
-    printf("[YCLogConsole] YCLogServer publish port:%zd \nfilterKeys: %s blockKeys: %s\n", kYCLogServerPort, [self.filterKeys componentsJoinedByString:@"、"].UTF8String, [self.blockKeys componentsJoinedByString:@"、"].UTF8String);
-    printf("bonjour type: %s name: %s srvType: %ld\n", [self bonjourType].UTF8String, [self bonjourName].UTF8String, self.type);
+    printf("[YCLogConsole] YCLogServer publish port:%zd \nFilterKeys: %s BlockKeys: %s\n", kYCLogServerPort, [self.filterKeys componentsJoinedByString:@"、"].UTF8String, [self.blockKeys componentsJoinedByString:@"、"].UTF8String);
+    printf("Bonjour type: %s name: %s srvType: %ld\n", [self bonjourType].UTF8String, [self bonjourName].UTF8String, self.type);
 }
 
 #pragma mark - data
@@ -161,7 +165,13 @@ static NSInteger kYCLogServerPort = 46666;
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag{
     NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     [sock readDataWithTimeout:-1 tag:0];
+    [self printMessage:text];
+}
+
+- (void)printMessage:(NSString *)msg
+{
+    NSString *result = msg;
     // 打印客户端日志
-    printf("%s", text.UTF8String);
+    printf("%s", result.UTF8String);
 }
 @end

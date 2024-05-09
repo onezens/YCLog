@@ -27,7 +27,7 @@
 	</dict>
 	<key>NSBonjourServices</key>
 	<array>
-		<string>_YCLogBonjour._tcp.</string>
+		<string>_YCLogConsole._tcp.</string>
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>App needs Local Network permission to find local devices.</string>

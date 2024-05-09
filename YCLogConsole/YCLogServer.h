@@ -19,7 +19,8 @@ typedef NS_ENUM(NSUInteger, YCLogServerType) {
 @interface YCLogServer : NSObject
 @property (nonatomic, strong) NSArray *filterKeys;
 @property (nonatomic, strong) NSArray *blockKeys;
-@property (nonatomic, copy) NSString *deviceId;
+@property (nonatomic, copy, nullable) NSString *deviceId;
+@property (nonatomic, copy) NSString *bonjourName;
 @property (nonatomic, assign) YCLogServerType type;
 
 

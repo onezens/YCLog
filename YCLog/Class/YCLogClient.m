@@ -176,14 +176,22 @@
 - (void)netServiceBrowser:(NSNetServiceBrowser *)browser didFindDomain:(NSString *)domainString moreComing:(BOOL)moreComing {
 }
 
+// client connect to server
 - (void)netServiceBrowser:(NSNetServiceBrowser *)browser didFindService:(NSNetService *)service moreComing:(BOOL)moreComing {
     dispatch_async(self.config.queue, ^{
         if (service && [service.name isEqualToString:self.config.deviceId]) {
-            [self.bonjourServers addObject:service];
-            [service setDelegate:self];
-            [service resolveWithTimeout:20];
+            [self connectBonjourService:service];
+        } else if (self.config.deviceId.length == 0 && [service.name isEqualToString:@"YCLogConsole"]) {
+            [self connectBonjourService:service];
         }
     });
+}
+
+- (void)connectBonjourService:(NSNetService *)service
+{
+    [self.bonjourServers addObject:service];
+    [service setDelegate:self];
+    [service resolveWithTimeout:20];
 }
 
 

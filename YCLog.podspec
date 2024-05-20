@@ -6,7 +6,6 @@ Pod::Spec.new do |s|
   s.license      = "MIT"
   s.author       = { "onezens" => "mail@onezen.cc" }
   s.ios.deployment_target = '9.0'
-  s.tvos.deployment_target = '9.0'
   s.osx.deployment_target = '10.8'
   s.source       = { :git => "https://github.com/onezens/YCLog.git", :tag => "#{s.version}" }
 

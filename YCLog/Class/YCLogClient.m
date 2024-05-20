@@ -251,7 +251,6 @@
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
 {
-    //TODO:retry connect
     self.status = YCLogClientStatusDisConnecting;
     self.addressIdx += 1;
     if (self.addressIdx >= self.addresses.count) {

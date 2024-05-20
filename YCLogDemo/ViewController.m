@@ -27,6 +27,7 @@
 {
     YCLogConfig *config = [YCLogConfig new];
     config.localLogPath = [self logPath];
+    config.disableLogConsole = YES;
 //    config.logHost = @"11.8.182.243";
     config.deviceId = @"730e75e74c354d08b010bee88d390b5fa169673436192902752";
     [[YCLog shared] setup:config];

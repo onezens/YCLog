@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "35C06702224336D100C060EF"
-               BuildableName = "YCLog.app"
-               BlueprintName = "YCLog"
-               ReferencedContainer = "container:YCLog.xcodeproj">
+               BuildableName = "YCLogDemo.app"
+               BlueprintName = "YCLogDemo"
+               ReferencedContainer = "container:YCLogDemo.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -31,9 +31,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "35C06702224336D100C060EF"
-            BuildableName = "YCLog.app"
-            BlueprintName = "YCLog"
-            ReferencedContainer = "container:YCLog.xcodeproj">
+            BuildableName = "YCLogDemo.app"
+            BlueprintName = "YCLogDemo"
+            ReferencedContainer = "container:YCLogDemo.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -54,9 +54,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "35C06702224336D100C060EF"
-            BuildableName = "YCLog.app"
-            BlueprintName = "YCLog"
-            ReferencedContainer = "container:YCLog.xcodeproj">
+            BuildableName = "YCLogDemo.app"
+            BlueprintName = "YCLogDemo"
+            ReferencedContainer = "container:YCLogDemo.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -71,9 +71,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "35C06702224336D100C060EF"
-            BuildableName = "YCLog.app"
-            BlueprintName = "YCLog"
-            ReferencedContainer = "container:YCLog.xcodeproj">
+            BuildableName = "YCLogDemo.app"
+            BlueprintName = "YCLogDemo"
+            ReferencedContainer = "container:YCLogDemo.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -5,7 +5,7 @@
 //  Created by wz on 2023/10/16.
 
 #import "YCLogConfig.h"
-NSString * const kRestfulLoggerId = @"YCLog";
+NSString * const kRestfulLoggerId = @"YCLogConsole";
 
 @implementation YCLogConfig
 

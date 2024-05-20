@@ -17,7 +17,7 @@
                BlueprintIdentifier = "35C0672722436D5000C060EF"
                BuildableName = "YCLogConsole"
                BlueprintName = "YCLogConsole"
-               ReferencedContainer = "container:YCLog.xcodeproj">
+               ReferencedContainer = "container:YCLogDemo.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,7 +47,7 @@
             BlueprintIdentifier = "35C0672722436D5000C060EF"
             BuildableName = "YCLogConsole"
             BlueprintName = "YCLogConsole"
-            ReferencedContainer = "container:YCLog.xcodeproj">
+            ReferencedContainer = "container:YCLogDemo.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -78,7 +78,7 @@
             BlueprintIdentifier = "35C0672722436D5000C060EF"
             BuildableName = "YCLogConsole"
             BlueprintName = "YCLogConsole"
-            ReferencedContainer = "container:YCLog.xcodeproj">
+            ReferencedContainer = "container:YCLogDemo.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

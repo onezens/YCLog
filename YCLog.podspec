@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "YCLog"
-  s.version      = "0.0.2"
+  s.version      = "1.0.0"
   s.summary      = "iOS console log"
   s.homepage     = "https://github.com/onezens/YCLog"
   s.license      = "MIT"

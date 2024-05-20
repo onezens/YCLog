@@ -38,6 +38,8 @@ static char * const COLOR_WHITE_DARK        =   "\e[2;37m";
 @interface YCLog()
 
 @property (nonatomic, strong) YCLogClient *logClient;
+@property (nonatomic, strong) NSDateFormatter *dateFormatter;
+
 
 @end
 
@@ -56,7 +58,9 @@ static char * const COLOR_WHITE_DARK        =   "\e[2;37m";
 
 - (void)initPrivate
 {
-    
+    NSDateFormatter *df = [[NSDateFormatter alloc] init];
+    [df setDateFormat:@"YYYY-MM-dd HH:mm:ss.SSS"];
+    self.dateFormatter = df;
 }
 
 - (void)setup:(YCLogConfig *)config
@@ -86,7 +90,8 @@ static char * const COLOR_WHITE_DARK        =   "\e[2;37m";
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        printf("[YCLogConsole]  unsupport YCLog, Please set log host!\n");
+        NSString *logId = YCLog.shared.logClient.config.logBonjourId;
+        printf("[YCLogConsole] unsupport YCLog logId: %s, Please set log host!\n", logId.UTF8String);
     });
 }
 
@@ -147,9 +152,7 @@ static char * const COLOR_WHITE_DARK        =   "\e[2;37m";
                 break;
         }
         
-        NSDateFormatter *df = [[NSDateFormatter alloc] init];
-        [df setDateFormat:@"YYYY-MM-dd HH:mm:ss.SSS"];
-        NSString *dateStr = [df stringFromDate:[NSDate date]];
+        NSString *dateStr = [self.dateFormatter stringFromDate:[NSDate date]];
         NSString *deviceName = @"Apple";
 #if TARGET_OS_OSX
         deviceName = [[NSHost currentHost] localizedName];

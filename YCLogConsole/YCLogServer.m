@@ -15,9 +15,12 @@
 
 static NSInteger kYCLogServerPort = 46666;
 static NSString * kYCLogBonjourType = @"YCLogConsole";
+//static NSString * kYCLogBonjourType = @"MSVRestfulLog";
+
 @interface YCLogServer()<NSNetServiceDelegate, GCDAsyncSocketDelegate>
 @property (nonatomic, strong) NSMutableArray *clients;
 @property (nonatomic, strong) NSNetService *bonjourServer;
+@property (nonatomic, copy, readonly) NSString *bonjourType;
 @property (nonatomic, strong) GCDAsyncSocket *asyncSocket;
 @property (nonatomic, strong) GCDAsyncSocket *ipHostSocket;
 @end
@@ -27,6 +30,7 @@ static NSString * kYCLogBonjourType = @"YCLogConsole";
 - (instancetype)init {
     if (self = [super init]) {
         _bonjourName = kYCLogBonjourType;
+        _bonjourTypeID = kYCLogBonjourType;
     }
     return self;
 }
@@ -40,8 +44,8 @@ static NSString * kYCLogBonjourType = @"YCLogConsole";
     if (self.type != YCLogServerTypeIP && [_asyncSocket acceptOnPort:0 error:&err]) {
         _clients = [NSMutableArray array];
         _bonjourServer = [[NSNetService alloc] initWithDomain:@"local."
-                                                         type:[self bonjourType]
-                                                         name:[self bonjourName]
+                                                         type:self.bonjourType
+                                                         name:self.bonjourName
                                                          port:_asyncSocket.localPort];
         
         _bonjourServer.delegate = self;
@@ -54,11 +58,15 @@ static NSString * kYCLogBonjourType = @"YCLogConsole";
         [_ipHostSocket acceptOnPort:kYCLogServerPort error:&err];
     }
     [self serverIP];
+    NSString *filterKeys = self.filterKeys.count > 0 ? [self.filterKeys componentsJoinedByString:@"、"] : @"null";
+    NSString *blockKeys = self.blockKeys.count > 0 ? [self.blockKeys componentsJoinedByString:@"、"] : @"null";
+    printf("[YCLogConsole] YCLogServer Started, Filter Keys: %s, Block Keys: %s \n", filterKeys.UTF8String, blockKeys.UTF8String);
+
 }
 
 - (NSString *)bonjourType
 {
-    return [NSString stringWithFormat:@"_%@._tcp.", kYCLogBonjourType];
+    return [NSString stringWithFormat:@"_%@._tcp.", self.bonjourTypeID];
 }
 
 - (void)serverIP
@@ -103,9 +111,12 @@ static NSString * kYCLogBonjourType = @"YCLogConsole";
 
 - (void)netService:(NSNetService *)sender didNotPublish:(NSDictionary<NSString *, NSNumber *> *)errorDict
 {
-#if YCLogServerEnableDebugLog
-    printf("[YCLogConsole] YCLogServer publish error %s\n", errorDict.description.UTF8String);
-#endif
+    NSInteger errorCode = [[errorDict valueForKey:@"NSNetServicesErrorCode"] integerValue];
+    if (errorCode == -72001) {
+        printf("[YCLogConsole] YCLogServer 自动连接广播发送失败，已有相同的广播。加上 -d <设备标识> 重新启动日志 \n[YCLogConsole] 错误详情 (注意：该错误不影响通过 IP 连接日志服务) Error: %s \n", errorDict.description.UTF8String);
+    } else {
+        printf("[YCLogConsole] YCLogServer publish error %s\n", errorDict.description.UTF8String);
+    }
 }
 
 - (void)netServiceDidResolveAddress:(NSNetService *)sender {
@@ -117,15 +128,21 @@ static NSString * kYCLogBonjourType = @"YCLogConsole";
 }
 
 - (void)netServiceDidStop:(NSNetService *)sender {
-#if YCLogServerEnableDebugLog
-    printf("[YCLogConsole] YCLogServer stop publish error \n");
-#endif
+    if (self.verbose) {
+        printf("[YCLogConsole] YCLogServer stop publish error \n");
+    }
 }
 
 - (void)netServiceDidPublish:(NSNetService *)ns
 {
-    printf("[YCLogConsole] YCLogServer publish port:%zd \nFilterKeys: %s BlockKeys: %s\n", kYCLogServerPort, [self.filterKeys componentsJoinedByString:@"、"].UTF8String, [self.blockKeys componentsJoinedByString:@"、"].UTF8String);
-    printf("Bonjour type: %s name: %s srvType: %ld\n", [self bonjourType].UTF8String, [self bonjourName].UTF8String, self.type);
+    NSString *srvTypeDesc = @"支持IP和自动连接";
+    if (self.type == 1) {
+        srvTypeDesc = @"仅支持IP连接";
+    } else if (self.type == 2) {
+        srvTypeDesc = @"仅支持自动连接";
+    }
+    printf("[YCLogConsole] YCLogServer Did Publish Port:%zd Type: %s \n", kYCLogServerPort, srvTypeDesc.UTF8String);
+    printf("[YCLogConsole] Bonjour Type: %s Name: %s \n", self.bonjourType.UTF8String, self.bonjourName.UTF8String);
 }
 
 #pragma mark - data
@@ -145,9 +162,7 @@ static NSString * kYCLogBonjourType = @"YCLogConsole";
 #pragma mark - GCDAsyncSocketDelegate
 - (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
 {
-#if YCLogServerEnableDebugLog
     printf("[YCLogConsole] didAcceptNewSocket %s \n", newSocket.description.UTF8String);
-#endif
     [self.clients addObject:newSocket];
     [newSocket readDataWithTimeout:-1 tag:0];
     NSData *data = [self getConfigData];
@@ -157,9 +172,7 @@ static NSString * kYCLogBonjourType = @"YCLogConsole";
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)socket withError:(NSError *)error{
     [_clients removeObject:socket];
-#if YCLogServerEnableDebugLog
     printf("[YCLogConsole] socketDidDisconnect %s error: %s\n", socket.description.UTF8String, error.description.UTF8String);
-#endif
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag{

@@ -44,6 +44,7 @@ int main(int argc, const char * argv[]) {
         NSMutableDictionary *params = loadCacheParams().mutableCopy ? : @{}.mutableCopy;
         NSMutableArray *filterKeys = [NSMutableArray array];
         NSMutableArray *blockKeys = [NSMutableArray array];
+        BOOL verbose = NO;
         int type = -1;
         for(int i=1; i<argc; i++){
             NSString *key = [NSString stringWithCString: argv[i] encoding:NSUTF8StringEncoding];
@@ -62,6 +63,12 @@ int main(int argc, const char * argv[]) {
             } else if ([key isEqualToString:@"-n"]){
                 type = 5;
                 continue;
+            } else if ([key isEqualToString:@"-bt"]){
+                type = 6;
+                continue;
+            } else if ([key isEqualToString:@"-v"]){
+                verbose = YES;
+                continue;
             }
             if (type == 1){
                 [filterKeys addObject:key];
@@ -73,15 +80,21 @@ int main(int argc, const char * argv[]) {
                 params[@"_type"] = key;
             } else if (type == 5){
                 params[@"_bonjourName"] = key;
+            } else if (type == 6){
+                params[@"_bonjourTypeID"] = key;
             }
         }
         params[@"_filterKeys"] = filterKeys;
         params[@"_blockKeys"] = blockKeys;
 
         [_logServer setValuesForKeysWithDictionary:params];
+        _logServer.verbose = verbose;
         [_logServer createServer];
-        saveParams(params);
-        
+        NSMutableDictionary *savedParams = params.mutableCopy;
+        saveParams(savedParams);
+        if (_logServer.verbose) {
+            printf("[YCLogConsole] Start Params: %s \n", params.description.UTF8String);
+        }
         NSRunLoop *runloop = [NSRunLoop currentRunLoop];
         [runloop run];
 

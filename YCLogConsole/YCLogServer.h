@@ -21,10 +21,12 @@ typedef NS_ENUM(NSUInteger, YCLogServerType) {
 @property (nonatomic, strong) NSArray *blockKeys;
 @property (nonatomic, copy, nullable) NSString *deviceId;
 @property (nonatomic, copy) NSString *bonjourName;
+@property (nonatomic, copy) NSString *bonjourTypeID;
 @property (nonatomic, assign) YCLogServerType type;
-
+@property (nonatomic, assign) BOOL verbose;
 
 - (void)createServer;
+
 @end
 
 NS_ASSUME_NONNULL_END

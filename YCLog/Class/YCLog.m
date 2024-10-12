@@ -133,6 +133,9 @@ static char * const COLOR_WHITE_DARK        =   "\e[2;37m";
 - (void)_logLevel:(YCLogLevel)level flag:(YCLogFlag)flag tag:(NSString *)tag allLog:(NSString *)allLog
 {
     NSAssert(self.logClient.config, @"没有设置config");
+    if (!self.logClient.config) {
+        return;
+    }
     dispatch_async(self.logClient.config.queue, ^{
         NSString *flagDesc = nil;
         switch (flag) {

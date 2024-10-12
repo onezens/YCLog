@@ -52,7 +52,11 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-f success debug&amp;ddd  -b info -d 730e75e74c354d08b010bee88d390b5fa169673436192902752"
+            argument = "-f success debug&amp;ddd  -b info -d 730e75e74c354d08b010bee88d390b5fa169673436192902752 -v"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-d c922a8b32b164465b2a8fb39d45099eaa172530076265523406 -f MSI  -b info -bt MSVRestfulLog"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
